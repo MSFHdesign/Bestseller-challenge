@@ -1,13 +1,27 @@
 <template>
-    <nav class="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md border-b border-gray-100 z-50 pl-80">
-        <div class="max-w-7xl mx-auto flex justify-between items-center px-8 py-3">
-            <!-- Logo -->
-            <NuxtLink to="/" class="flex-shrink-0" @click="refreshData">
-                <img src="https://bestseller.com/media/jvnn3xxh/bestseller_logo_black_2021-1.png" 
-                     alt="Bestseller" 
-                     class="h-8 w-auto"
-                />
-            </NuxtLink>
+    <nav class="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md border-b border-gray-100 z-40">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 lg:px-8 py-3">
+            <!-- Left Section with Logo and Sidebar Toggle -->
+            <div class="flex items-center gap-4">
+                <!-- Sidebar Toggle Button -->
+                <button 
+                    @click="toggleSidebar"
+                    class="p-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    aria-label="Toggle sidebar navigation"
+                >
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                
+                <!-- Logo -->
+                <NuxtLink to="/" class="flex-shrink-0" @click="refreshData">
+                    <img src="https://bestseller.com/media/jvnn3xxh/bestseller_logo_black_2021-1.png" 
+                         alt="Bestseller" 
+                         class="h-8 w-auto"
+                    />
+                </NuxtLink>
+            </div>
 
             <!-- Main Navigation (Center) -->
             <div class="hidden lg:block flex-grow max-w-3xl mx-12">
@@ -30,7 +44,7 @@
                         
                         <!-- Mega Menu -->
                         <div v-if="category.categories" 
-                            class="absolute top-full left-1/2 -translate-x-1/2 w-screen max-w-5xl bg-white shadow-lg border-t border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out">
+                            class="absolute top-full left-1/2 -translate-x-1/2 w-screen max-w-5xl bg-white shadow-lg border-t border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out z-30">
                             <div class="grid grid-cols-4 gap-8 p-8">
                                 <div v-for="subCategory in category.categories" 
                                      :key="subCategory.id" 
@@ -59,76 +73,61 @@
             </div>
 
             <!-- Right Side Actions -->
-            <div class="flex items-center space-x-6">
-                <!-- Sidebar Toggle Button -->
-                <button @click="toggleSidebar"
-                    class="lg:hidden p-2 hover:bg-gray-100 rounded-lg">
-                    <svg class="w-6 h-6 text-gray-700" 
-                         fill="none" 
-                         viewBox="0 0 24 24" 
-                         stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
-                              d="M4 6h16M4 12h16M4 18h16" />
+            <div class="flex items-center space-x-4">
+                <!-- Search Button (Desktop) -->
+                <button 
+                    @click="toggleSidebar"
+                    class="hidden md:block p-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    aria-label="Search"
+                >
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </button>
-
-                <!-- Cart -->
-                <button @click="toggleCart"
-                    class="relative group">
-                    <svg class="w-6 h-6 text-gray-700 group-hover:text-black transition-colors" 
-                         fill="none" 
-                         viewBox="0 0 24 24" 
-                         stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
-                              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                
+                <!-- Wishlist -->
+                <NuxtLink to="/wishlist" class="p-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
-                    <span v-if="cartItems.length > 0"
-                        class="absolute -top-1 -right-1 bg-black text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
+                </NuxtLink>
+                
+                <!-- Cart -->
+                <button 
+                    @click="toggleCart"
+                    class="p-2 text-gray-500 hover:text-gray-700 focus:outline-none relative"
+                    aria-label="Shopping cart"
+                >
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span v-if="cartItems.length" 
+                          class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
                         {{ cartItems.length }}
                     </span>
                 </button>
-            </div>
-        </div>
-
-        <!-- Cart Dropdown -->
-        <div v-if="isCartOpen"
-            class="absolute right-8 top-full mt-1 w-80 bg-white shadow-xl rounded-lg border border-gray-100 p-4">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="font-medium">Shopping Bag</h2>
-                <button @click="toggleCart" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                
+                <!-- Mobile Menu Toggle -->
+                <button 
+                    @click="toggleMobileMenu"
+                    class="lg:hidden p-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    aria-label="Toggle mobile menu"
+                >
+                    <svg v-if="!isMobileMenuOpen" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                    <svg v-else class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
-            <!-- Cart Content -->
-            <div v-if="cartItems.length === 0" class="text-gray-500 text-sm">Your shopping bag is empty</div>
-            <ul v-else class="space-y-3">
-                <li v-for="item in cartItems" :key="item.id"
-                    class="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
-                    <span class="text-sm">{{ item.name?.dk || item.name?.en }}</span>
-                    <span class="text-sm font-medium">{{ item.price * item.quantity }} kr</span>
-                </li>
-            </ul>
-            <NuxtLink to="/cart"
-                class="mt-4 block w-full bg-black text-white text-center py-2 px-4 rounded-md hover:bg-gray-900 transition-colors">
-                View Shopping Bag
-            </NuxtLink>
         </div>
-
+        
         <!-- Mobile Menu -->
-        <div v-if="isMobileMenuOpen"
-            class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50">
-            <div class="absolute right-0 top-0 h-full w-80 bg-white shadow-xl overflow-y-auto">
-                <div class="flex justify-between items-center p-4 border-b">
-                    <h2 class="font-medium">Menu</h2>
-                    <button @click="toggleMobileMenu" class="text-gray-400 hover:text-gray-600">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-                <nav class="p-4">
+        <div v-if="isMobileMenuOpen" 
+             class="lg:hidden bg-white border-t border-gray-100 shadow-lg">
+            <div class="container mx-auto px-4 py-6">
+                <nav class="space-y-6">
                     <ul class="space-y-4">
                         <li v-for="category in mainCategories" :key="category.id">
                             <NuxtLink 
@@ -154,7 +153,7 @@
         </div>
     </nav>
 
-    <!-- Add overlay and move SidebarMenu here -->
+    <!-- Add SidebarMenu here -->
     <SidebarMenu 
         :is-open="isSidebarOpen"
         :all-products="allProducts"

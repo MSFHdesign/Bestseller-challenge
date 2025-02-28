@@ -81,14 +81,16 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useProducts } from '~/composables/useProducts';
 import NavBar from '~/components/NavBar.vue';
 import SearchProducts from '~/components/SearchProducts.vue';
 import ProductCard from '~/components/ProductCard.vue';
 import ProductPromo from '~/components/ProductPromo.vue';
+import data from '@/server/data/data.json';
 
 const route = useRoute();
+const router = useRouter();
 const showFilters = ref(false);
 
 // Get all products from the composable with loading state
@@ -221,6 +223,81 @@ const getPromoContainerClass = (promo) => {
             return baseClasses;
     }
 };
+
+// Apply URL filters to products
+const applyUrlFilters = () => {
+    let results = [...allProducts.value];
+    
+    // Apply category filter
+    if (currentCategory.value) {
+        results = results.filter(product => 
+            product.categories && product.categories.includes(currentCategory.value)
+        );
+    }
+    
+    // Apply search query
+    if (route.query.q) {
+        const query = route.query.q.toLowerCase();
+        results = results.filter(product => {
+            return (
+                (product.name?.dk?.toLowerCase().includes(query)) ||
+                (product.name?.en?.toLowerCase().includes(query)) ||
+                (product.brand?.toLowerCase().includes(query)) ||
+                (product.color?.toLowerCase().includes(query)) ||
+                (product.categories?.some(cat => cat.toLowerCase().includes(query)))
+            );
+        });
+    }
+    
+    // Apply price filters
+    if (route.query.minPrice) {
+        results = results.filter(product => product.price >= Number(route.query.minPrice));
+    }
+    
+    if (route.query.maxPrice) {
+        results = results.filter(product => product.price <= Number(route.query.maxPrice));
+    }
+    
+    // Apply size filters
+    if (route.query.sizes) {
+        const sizes = route.query.sizes.split(',');
+        results = results.filter(product => {
+            if (!product.size || !Array.isArray(product.size)) return false;
+            return sizes.some(size => product.size.includes(size));
+        });
+    }
+    
+    // Apply brand filters
+    if (route.query.brands) {
+        const brands = route.query.brands.split(',');
+        results = results.filter(product => brands.includes(product.brand));
+    }
+    
+    filteredItems.value = results;
+};
+
+// Initialize
+onMounted(async () => {
+    // Refresh products if needed
+    if (allProducts.value.length === 0) {
+        await fetchData();
+    }
+    
+    // Apply URL filters
+    applyUrlFilters();
+});
+
+// Watch for route changes to update filters
+watch(() => route.query, () => {
+    applyUrlFilters();
+}, { deep: true });
+
+// Watch for changes in all products to reapply filters
+watch(() => allProducts.value, () => {
+    if (allProducts.value.length > 0) {
+        applyUrlFilters();
+    }
+}, { deep: true });
 </script>
 
 <style scoped>
