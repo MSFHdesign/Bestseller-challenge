@@ -1,4 +1,4 @@
-import { ref, onMounted } from 'vue';
+import { ref, useAsyncData, computed } from '#imports';
 
 // Define the types for the data
 interface Product {
@@ -36,35 +36,21 @@ interface Promotion {
 
 // Define the composable
 export function useProducts() {
-  const products = ref<Product[]>([]);
-  const categories = ref<Category[]>([]);
-  const promotions = ref<Promotion[]>([]);
+  const { data: productsData, pending: productsLoading } = useAsyncData('products',
+    () => $fetch('/api/products')
+  );
 
-  // Fetch the data from the API
-  const fetchData = async () => { 
-    try {
-      const productsRes = await useFetch<{ products: Product[] }>('/api/products');
-      const categoriesRes = await useFetch<{ categories: Category[] }>('/api/categories');
-      const promotionsRes = await useFetch<{ promotionalSpots: Promotion[] }>('/api/promotions');
+  const { data: promotionsData, pending: promosLoading } = useAsyncData('promotions',
+    () => $fetch('/api/promotions')
+  );
 
-      // Handle potential null values safely
-      if (productsRes.data.value) {
-        products.value = productsRes.data.value.products;
-      }
-      if (categoriesRes.data.value) {
-        categories.value = categoriesRes.data.value.categories;
-      }
-      if (promotionsRes.data.value) {
-        promotions.value = promotionsRes.data.value.promotionalSpots;
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+  const products = computed(() => productsData.value?.products || []);
+  const promotionalSpots = computed(() => promotionsData.value?.promotionalSpots || []);
+  const loading = computed(() => productsLoading.value || promosLoading.value);
+
+  return {
+    products,
+    promotionalSpots,
+    loading
   };
-  
-  // Fetch the data when the component is mounted
-  onMounted(fetchData);
-
-  // Return the data
-  return { products, categories, promotions };
 }
