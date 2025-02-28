@@ -1,12 +1,14 @@
 <template>
   <div class="relative">
-    <!-- Products Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      <ProductCard 
+    <!-- Products Row -->
+    <div class="flex overflow-x-auto gap-6 scrollbar-hide snap-x snap-mandatory">
+      <div 
         v-for="product in products" 
-        :key="product.id" 
-        :product="product"
-      />
+        :key="product.id"
+        class="flex-none w-[280px] snap-start h-[500px]"
+      >
+        <ProductCard :product="product" class="h-full w-full" />
+      </div>
     </div>
     
     <!-- Navigation Arrows -->
@@ -44,7 +46,13 @@ const props = defineProps({
 const showNavigation = computed(() => props.products.length > 4);
 
 const scroll = (direction) => {
-  // Implement smooth scrolling logic here if needed
+  const container = document.querySelector('.overflow-x-auto');
+  if (container) {
+    container.scrollBy({
+      left: direction * 300,
+      behavior: 'smooth'
+    });
+  }
 };
 </script>
 

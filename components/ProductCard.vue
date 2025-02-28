@@ -1,5 +1,5 @@
 <template>
-    <div class="group relative bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden min-h-[400px] flex flex-col">
+    <div class="group relative bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full">
         <!-- Wishlist Button -->
         <button @click.prevent="toggleWishlist" 
             class="absolute top-4 right-4 z-10 bg-white/80 dark:bg-gray-800/80 p-2 rounded-full shadow-md hover:scale-110 transition-transform">
@@ -19,9 +19,10 @@
             Kun {{ product.stock }} tilbage
         </div>
 
-        <NuxtLink :to="`/product/${product.id}`" class="flex-grow">
-            <!-- Image Container -->
-            <div class="relative overflow-hidden aspect-square">
+        <!-- Main Content Area -->
+        <div class="flex flex-col h-full">
+            <!-- Image Section - Fixed Height -->
+            <div class="relative overflow-hidden h-[300px] flex-shrink-0">
                 <img :src="product.images[0]"
                     class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
                     :alt="product.name.dk || product.name.en"
@@ -35,50 +36,43 @@
             </div>
 
             <!-- Product Info -->
-            <div class="p-4 flex flex-col flex-grow">
-                <!-- Brand if exists -->
-                <p v-if="product.brand" class="text-sm text-gray-500 dark:text-gray-400 mb-1">
-                    {{ product.brand }}
-                </p>
+            <NuxtLink :to="`/product/${product.id}`" class="flex flex-col flex-grow p-4">
+                <div class="flex flex-col h-full">
+                    <!-- Brand if exists -->
+                    <p v-if="product.brand" class="text-sm text-gray-500 dark:text-gray-400 mb-1 truncate">
+                        {{ product.brand }}
+                    </p>
 
-                <!-- Product Name -->
-                <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">
-                    {{ product.name.dk || product.name.en }}
-                </h2>
+                    <!-- Product Name - Limited to 2 lines -->
+                    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2 line-clamp-2">
+                        {{ product.name.dk || product.name.en }}
+                    </h2>
 
-                <!-- Price Section -->
-                <div class="flex items-center gap-2 mb-3">
-                    <span v-if="product.originalPrice && product.originalPrice > product.price" 
-                        class="text-sm text-gray-400 line-through">
-                        {{ product.originalPrice }} DKK
-                    </span>
-                    <span class="text-lg font-bold" :class="{'text-red-500': product.onSale}">
-                        {{ product.price }} DKK
-                    </span>
+                    <!-- Price Section -->
+                    <div class="flex items-center gap-2">
+                        <span v-if="product.originalPrice && product.originalPrice > product.price" 
+                            class="text-sm text-gray-400 line-through">
+                            {{ product.originalPrice }} DKK
+                        </span>
+                        <span class="text-lg font-bold" :class="{'text-red-500': product.onSale}">
+                            {{ product.price }} DKK
+                        </span>
+                    </div>
                 </div>
+            </NuxtLink>
 
-                <!-- Color & Size -->
-                <div class="flex gap-2 mb-3">
-                    <span v-if="product.color" 
-                        class="text-sm px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">
-                        {{ product.color }}
-                    </span>
-                    <span v-if="product.size" 
-                        class="text-sm px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">
-                        {{ product.size }}
-                    </span>
-                </div>
+            <!-- CTA Button - Always at Bottom -->
+            <div class="mt-auto">
+                <NuxtLink 
+                    :to="`/product/${product.id}`"
+                    class="block w-full bg-black dark:bg-white text-white dark:text-black h-[50px] font-medium 
+                        hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors duration-300
+                        disabled:bg-gray-300 disabled:cursor-not-allowed text-center leading-[50px]"
+                >
+                    Se produkt →
+                </NuxtLink>
             </div>
-        </NuxtLink>
-
-        <!-- Quick Add to Cart - Fixed onClick handler -->
-        <button @click="handleAddToCart" 
-            class="w-full bg-black dark:bg-white text-white dark:text-black py-3 font-medium 
-                hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors duration-300
-                disabled:bg-gray-300 disabled:cursor-not-allowed"
-            :disabled="product.stock === 0">
-            {{ product.stock === 0 ? 'Udsolgt' : 'Læg i kurv' }}
-        </button>
+        </div>
     </div>
 </template>
 

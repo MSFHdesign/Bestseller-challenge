@@ -5,7 +5,7 @@
         :src="promo.image?.imageUrl" 
         :alt="promo.imageAltText || 'Promotional image'"
         :style="{
-          aspectRatio: promo.image?.aspectRatio?.replace(':', '/') || '1/1',
+          aspectRatio: getAspectRatio,
           objectPosition: getFocalPoint
         }"
         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -34,9 +34,38 @@ const props = defineProps({
   }
 });
 
+const getAspectRatio = computed(() => {
+  if (!props.promo?.type) return '1/1';
+  
+  switch (props.promo.type) {
+    case '2x2': return '2/1'; // Ændret fra 2/2 til 2/1 for at gøre det mindre højt
+    case '2x1': return '2/1';
+    case '1x2': return '1/2';
+    default: return '1/1';
+  }
+});
+
 const getFocalPoint = computed(() => {
   const x = props.promo?.image?.focalPoint?.x || 0.5;
   const y = props.promo?.image?.focalPoint?.y || 0.5;
   return `${x * 100}% ${y * 100}%`;
 });
-</script> 
+</script>
+
+<style scoped>
+.promo-2x2 {
+  grid-column: span 2;
+  grid-row: span 2;
+  max-height: calc(2 * var(--product-card-height, 400px));
+}
+
+.promo-2x1 {
+  grid-column: span 2;
+  max-height: var(--product-card-height, 400px);
+}
+
+.promo-1x2 {
+  grid-row: span 2;
+  max-height: calc(2 * var(--product-card-height, 400px));
+}
+</style>

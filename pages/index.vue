@@ -53,30 +53,10 @@
           />
         </section>
 
-        <!-- Promotional Grid -->
-        <section class="grid grid-cols-2 gap-6">
-          <ProductPromo 
-            v-for="promo in otherPromos" 
-            :key="promo.position" 
-            :promo="promo"
-            :class="promo.type === '2x2' ? 'col-span-2' : ''"
-          />
-        </section>
+   
 
-        <!-- Product Grid with Promos -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <!-- Products and Promos mixed -->
-          <template v-for="(item, index) in mixedContent" :key="index">
-            <ProductCard 
-              v-if="item.type === 'product'" 
-              :product="item"
-            />
-            <ProductPromo
-              v-else
-              :promo="item"
-            />
-        </template>
-        </div>
+      
+       
       </div>
     </div>
   </div>
