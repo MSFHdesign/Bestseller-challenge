@@ -91,8 +91,6 @@ export function useProducts() {
   const loading = computed(() => productsLoading.value || promosLoading.value);
 
   const refresh = async () => {
-    if (loading.value || hasInitialized.value) return; // Prevent multiple refreshes
-    
     loadingState.value = true;
     try {
       await Promise.all([

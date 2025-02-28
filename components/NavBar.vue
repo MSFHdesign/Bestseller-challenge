@@ -156,7 +156,7 @@
 
     <!-- Add overlay and move SidebarMenu here -->
     <SidebarMenu 
-        :is-open="true"
+        :is-open="isSidebarOpen"
         :all-products="allProducts"
         @close="closeSidebar"
         class="z-50"

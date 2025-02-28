@@ -76,31 +76,102 @@
 </template>
 
 <script setup>
-import { computed, onMounted, watch } from 'vue';
+import { computed, onMounted, watch, ref, onBeforeMount, nextTick } from 'vue';
 import { useProducts } from '~/composables/useProducts';
 import ProductPromo from '~/components/ProductPromo.vue';
 import ProductCard from '~/components/ProductCard.vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const { products, promotionalSpots, loading, refresh, hasInitialized } = useProducts();
 
-// Only refresh if we haven't initialized and we're on the client
-onMounted(() => {
-  if (!hasInitialized.value && process.client) {
-    refresh();
+// Add a local loading state to handle transitions better
+const localLoading = ref(true);
+const isPageMounted = ref(false);
+const forceRefresh = ref(true);
+
+// Force refresh on every visit to index page
+onBeforeMount(() => {
+  // Reset the hasInitialized state to force a refresh
+  hasInitialized.value = false;
+  forceRefresh.value = true;
+});
+
+// Improved initialization logic with more aggressive approach
+onMounted(async () => {
+  localLoading.value = true;
+  isPageMounted.value = true;
+  
+  // Always refresh data when on the index page
+  if (process.client) {
+    try {
+      // Clear existing data first
+      products.value = [];
+      promotionalSpots.value = [];
+      
+      // Wait for next tick to ensure UI updates
+      await nextTick();
+      
+      // Force refresh by bypassing the hasInitialized check
+      await refreshData();
+      
+      // If still no products, try one more time after a delay
+      if (!products.value.length && forceRefresh.value) {
+        forceRefresh.value = false;
+        setTimeout(async () => {
+          await refreshData();
+        }, 500);
+      }
+    } catch (error) {
+      console.error('Error refreshing products:', error);
+    } finally {
+      localLoading.value = false;
+    }
+  } else {
+    localLoading.value = false;
   }
 });
 
-// Add debug computed property
+// Custom refresh function that bypasses the hasInitialized check
+const refreshData = async () => {
+  try {
+    console.log('Refreshing data directly from API...');
+    // Call the API endpoints directly instead of using the composable's refresh
+    await Promise.all([
+      $fetch('/api/products').then(data => {
+        console.log('Products fetched:', data.products?.length || 0);
+        if (data.products) {
+          products.value = data.products;
+        }
+      }),
+      $fetch('/api/promotions').then(data => {
+        console.log('Promotions fetched:', data.promotionalSpots?.length || 0);
+        if (data.promotionalSpots) {
+          promotionalSpots.value = data.promotionalSpots;
+        }
+      })
+    ]);
+    // Set hasInitialized to true after successful fetch
+    hasInitialized.value = true;
+  } catch (error) {
+    console.error('Error in refreshData:', error);
+  }
+};
+
+// Update debug to include more information
 const debug = computed(() => ({
   productsLength: products.value?.length || 0,
   womenProductsLength: womenProducts.value?.length || 0,
   menProductsLength: menProducts.value?.length || 0,
-  loading: loading.value
+  loading: loading.value,
+  hasInitialized: hasInitialized.value,
+  localLoading: localLoading.value,
+  isPageMounted: isPageMounted.value
 }));
 
-// Watch for changes
-watch(() => products.value, (newVal) => {
-  console.log('Products updated:', newVal?.length);
+// Watch for changes with better logging
+watch(() => products.value, (newVal, oldVal) => {
+  console.log(`Products updated: ${oldVal?.length || 0} → ${newVal?.length || 0}`);
 }, { deep: true });
 
 // Mix products and promos in a smart way
