@@ -70,7 +70,7 @@
 
     <!-- Add debug info at the bottom -->
     <div class="text-sm text-gray-500 p-4">
-      Debug: {{ debug }}
+      
     </div>
   </div>
 </template>
@@ -83,12 +83,36 @@ import ProductCard from '~/components/ProductCard.vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const { products, promotionalSpots, loading, refresh, hasInitialized } = useProducts();
+const { products, promotionalSpots, loading: composableLoading, refresh, hasInitialized } = useProducts();
 
 // Add a local loading state to handle transitions better
 const localLoading = ref(true);
 const isPageMounted = ref(false);
 const forceRefresh = ref(true);
+
+// Create a computed loading property that considers both states
+const loading = computed(() => {
+  // If we have products, we're not loading regardless of what the composable says
+  if (products.value && products.value.length > 0) {
+    return false;
+  }
+  return composableLoading.value || localLoading.value;
+});
+
+// Women's products
+const womenProducts = computed(() => {
+  return products.value.filter(p => p.categories?.includes('women_clothes')).slice(0, 8);
+});
+
+// Men's products
+const menProducts = computed(() => {
+  return products.value.filter(p => p.categories?.includes('men_clothes')).slice(0, 8);
+});
+
+// Main promo
+const mainPromo = computed(() => {
+  return promotionalSpots.value?.find(p => p.type === '2x2') || null;
+});
 
 // Force refresh on every visit to index page
 onBeforeMount(() => {
@@ -105,13 +129,6 @@ onMounted(async () => {
   // Always refresh data when on the index page
   if (process.client) {
     try {
-      // Clear existing data first
-      products.value = [];
-      promotionalSpots.value = [];
-      
-      // Wait for next tick to ensure UI updates
-      await nextTick();
-      
       // Force refresh by bypassing the hasInitialized check
       await refreshData();
       
@@ -120,11 +137,13 @@ onMounted(async () => {
         forceRefresh.value = false;
         setTimeout(async () => {
           await refreshData();
+          localLoading.value = false;
         }, 500);
+      } else {
+        localLoading.value = false;
       }
     } catch (error) {
       console.error('Error refreshing products:', error);
-    } finally {
       localLoading.value = false;
     }
   } else {
@@ -164,8 +183,9 @@ const debug = computed(() => ({
   womenProductsLength: womenProducts.value?.length || 0,
   menProductsLength: menProducts.value?.length || 0,
   loading: loading.value,
-  hasInitialized: hasInitialized.value,
+  composableLoading: composableLoading.value,
   localLoading: localLoading.value,
+  hasInitialized: hasInitialized.value,
   isPageMounted: isPageMounted.value
 }));
 
@@ -202,28 +222,10 @@ const mixedContent = computed(() => {
   return mixed;
 });
 
-// Get promotions for different sections
-const mainPromo = computed(() => 
-  promotionalSpots.value?.find(p => p.type === '2x2')
-);
-
 const otherPromos = computed(() => 
   promotionalSpots.value
     ?.filter(p => p.type !== '2x2')
     ?.sort((a, b) => a.position - b.position) || []
-);
-
-// Filter products by category
-const womenProducts = computed(() => 
-  products.value
-    ?.filter(p => p.categories?.includes('women_clothes'))
-    ?.slice(0, 8) || []
-);
-
-const menProducts = computed(() => 
-  products.value
-    ?.filter(p => p.categories?.includes('men_clothes'))
-    ?.slice(0, 8) || []
 );
 </script>
 
