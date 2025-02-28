@@ -62,7 +62,9 @@ export function useProducts() {
     'products',
     () => $fetch<{ products: Product[] }>('/api/products'),
     {
-      immediate: false,
+      // Add these options to prevent unnecessary refetches
+      watch: false,
+      lazy: true,
       transform: (data) => {
         productsState.value = data.products || [];
         return data;
@@ -74,7 +76,9 @@ export function useProducts() {
     'promotions',
     () => $fetch<{ promotionalSpots: PromotionalSpot[] }>('/api/promotions'),
     {
-      immediate: false,
+      // Add these options to prevent unnecessary refetches
+      watch: false,
+      lazy: true,
       transform: (data) => {
         promotionalSpotsState.value = data.promotionalSpots || [];
         return data;
@@ -87,7 +91,7 @@ export function useProducts() {
   const loading = computed(() => productsLoading.value || promosLoading.value);
 
   const refresh = async () => {
-    if (loading.value) return;
+    if (loading.value || hasInitialized.value) return; // Prevent multiple refreshes
     
     loadingState.value = true;
     try {
@@ -102,7 +106,7 @@ export function useProducts() {
   };
 
   // Initialize data only once if not already initialized
-  if (!hasInitialized.value && !productsState.value.length) {
+  if (process.client && !hasInitialized.value && !productsState.value.length) {
     refresh();
   }
 

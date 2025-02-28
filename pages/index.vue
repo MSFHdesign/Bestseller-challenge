@@ -1,5 +1,13 @@
 <template>
   <div>
+    <!-- Add debug info -->
+    <div v-if="debug.loading" class="text-sm text-gray-500 p-4">
+      Loading products...
+    </div>
+    <div v-else-if="!debug.productsLength" class="text-sm text-red-500 p-4">
+      No products loaded
+    </div>
+    
     <div v-if="loading" class="container mx-auto px-6 py-16">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div v-for="n in 8" :key="n" class="h-[400px] bg-gray-100 rounded-xl animate-pulse"></div>
@@ -59,16 +67,41 @@
        
       </div>
     </div>
+
+    <!-- Add debug info at the bottom -->
+    <div class="text-sm text-gray-500 p-4">
+      Debug: {{ debug }}
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useProducts } from '~/composables/useProducts';
 import ProductPromo from '~/components/ProductPromo.vue';
 import ProductCard from '~/components/ProductCard.vue';
 
-const { products, promotionalSpots, loading } = useProducts();
+const { products, promotionalSpots, loading, refresh, hasInitialized } = useProducts();
+
+// Only refresh if we haven't initialized and we're on the client
+onMounted(() => {
+  if (!hasInitialized.value && process.client) {
+    refresh();
+  }
+});
+
+// Add debug computed property
+const debug = computed(() => ({
+  productsLength: products.value?.length || 0,
+  womenProductsLength: womenProducts.value?.length || 0,
+  menProductsLength: menProducts.value?.length || 0,
+  loading: loading.value
+}));
+
+// Watch for changes
+watch(() => products.value, (newVal) => {
+  console.log('Products updated:', newVal?.length);
+}, { deep: true });
 
 // Mix products and promos in a smart way
 const mixedContent = computed(() => {

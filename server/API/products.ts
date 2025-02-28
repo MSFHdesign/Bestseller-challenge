@@ -1,6 +1,12 @@
 import { defineEventHandler, getQuery } from 'h3';
 import data from '../data/data.json';
 
+// Move logging outside the handler to prevent repeated logs
+const dataAvailable = !!data?.products?.length;
+if (!dataAvailable) {
+  console.warn('No valid products data found in data.json');
+}
+
 // Add interface at the top of the file
 interface Product {
   id: number | string;
@@ -31,7 +37,8 @@ export default defineEventHandler((event) => {
 
   const query = getQuery(event);
   const searchTerm = typeof query.q === 'string' ? query.q.toLowerCase() : "";
- // fun
+
+  // fun
   const generateVariantId = (productId: string, variantColor: string): string => {
     return `${productId}-${variantColor.replace(/\s+/g, '').toLowerCase()}`;
   };
