@@ -1,7 +1,11 @@
 <template>
   <div class="mb-8">
     <!-- Main Search Bar with Smart Dropdown -->
-    <div class="relative" ref="searchContainer">
+    <div 
+      ref="searchContainer" 
+      v-click-outside="handleClickOutside"
+      class="relative"
+    >
       <div class="flex gap-2">
         <div class="flex-1 relative">
           <input
@@ -169,12 +173,14 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, reactive } from 'vue';
-import { onClickOutside } from '@vueuse/core';
 import { TransitionScale, TransitionSlide, TransitionFade } from '~/components/transitions';
 import debounce from 'lodash/debounce';
 
 const props = defineProps({
-  products: { type: Array, required: true }
+  initialProducts: { 
+    type: Array, 
+    required: true 
+  }
 });
 
 const emit = defineEmits(['filtered']);
@@ -197,12 +203,12 @@ const filters = reactive({
 
 // Computed Properties
 const availableBrands = computed(() => 
-  Array.from(new Set(props.products.map(p => p.brand))).sort()
+  Array.from(new Set(props.initialProducts.map(p => p.brand))).sort()
 );
 
 const availableSizes = computed(() => {
   const sizes = new Set();
-  props.products.forEach(product => {
+  props.initialProducts.forEach(product => {
     // Handle both direct sizes and variant sizes
     if (product.sizes) {
       product.sizes.forEach(size => sizes.add(size));
@@ -251,7 +257,7 @@ const searchSuggestions = computed(() => {
     .slice(0, 3);
 
   // Product suggestions
-  suggestions.products = props.products
+  suggestions.products = props.initialProducts
     .filter(product => 
       product.name.dk.toLowerCase().includes(query) || 
       product.name.en.toLowerCase().includes(query)
@@ -278,7 +284,7 @@ const hasActiveFilters = computed(() => {
 });
 
 const filteredProducts = computed(() => {
-  return props.products.filter(product => {
+  return props.initialProducts.filter(product => {
     // Search query filter
     if (searchQuery.value) {
       const query = searchQuery.value.toLowerCase();

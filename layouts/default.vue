@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen">
+  <div class="min-h-screen pl-80">
     <NavBar />
-    <main>
+    <main class="pt-16">
       <slot />
     </main>
     <Toast />
