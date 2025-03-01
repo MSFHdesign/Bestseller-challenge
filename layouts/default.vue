@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen pl-80">
+  <div class="min-h-screen pl-0 ">
     <NavBar />
     <main class="pt-16">
       <slot />
