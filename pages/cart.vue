@@ -52,29 +52,39 @@
                   <p v-if="item.selectedSize">
                     Størrelse: {{ item.selectedSize }}
                   </p>
+                  <p v-else-if="!item.size || item.size.length === 0">
+                    <span>One Size</span>
+                  </p>
                 </div>
 
                 <!-- Quantity Controls -->
                 <div class="mt-auto flex items-center justify-between">
                   <div class="flex items-center gap-2">
-                    <button 
-                      @click="updateQuantity(item, -1)"
-                      :disabled="item.quantity <= 1"
-                      class="p-1 rounded hover:bg-gray-100 disabled:opacity-50"
-                    >
-                      −
-                    </button>
-                    <span class="w-8 text-center">{{ item.quantity }}</span>
-                    <button 
-                      @click="updateQuantity(item, 1)"
-                      :disabled="!isInStock(item)"
-                      class="p-1 rounded hover:bg-gray-100 disabled:opacity-50"
-                    >
-                      +
-                    </button>
+                    <div class="flex items-center border border-gray-200 rounded-md overflow-hidden">
+                      <button 
+                        @click="updateQuantity(item, -1)"
+                        :disabled="item.quantity <= 1"
+                        class="px-3 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none"
+                        aria-label="Reducer antal"
+                      >
+                        −
+                      </button>
+                      <span class="w-8 text-center text-sm font-medium">{{ item.quantity }}</span>
+                      <button 
+                        @click="updateQuantity(item, 1)"
+                        :disabled="!isInStock(item)"
+                        class="px-3 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none"
+                        aria-label="Forøg antal"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <span v-if="!isInStock(item) && item.quantity > 0" class="text-xs text-amber-600">
+                      Max antal på lager
+                    </span>
                   </div>
                   <button 
-                    @click="removeFromCart(item)"
+                    @click="removeItem(item)"
                     class="text-red-500 hover:text-red-600"
                   >
                     Fjern
@@ -120,7 +130,7 @@ import { useCart } from '~/composables/useCart';
 import { useProducts } from '~/composables/useProducts';
 import { useToast } from '~/composables/useToast';
 
-const { cart, removeFromCart, updateQuantity } = useCart();
+const { cart, removeItem } = useCart();
 const { products } = useProducts();
 const toast = useToast();
 
@@ -147,6 +157,28 @@ const total = computed(() =>
   subtotal.value + shipping.value - discount.value
 );
 
+// Custom updateQuantity function for the cart page
+const updateQuantity = (item, change) => {
+  const index = cart.value.findIndex(cartItem => cartItem.id === item.id);
+  if (index !== -1) {
+    const newQuantity = cart.value[index].quantity + change;
+    if (newQuantity > 0 && (change < 0 || isInStock(item, newQuantity))) {
+      // Create a new cart array with the updated item
+      const updatedCart = [...cart.value];
+      updatedCart[index] = { ...updatedCart[index], quantity: newQuantity };
+      cart.value = updatedCart;
+    }
+  }
+};
+
+// Check if item is in stock with the new quantity
+const isInStock = (item, newQuantity = item.quantity + 1) => {
+  if (item.selectedVariant) {
+    return item.selectedVariant.stock >= newQuantity;
+  }
+  return item.stock >= newQuantity;
+};
+
 const relatedProducts = computed(() => {
   if (!cart.value.length) return [];
   
@@ -162,19 +194,11 @@ const relatedProducts = computed(() => {
     .slice(0, 4);
 });
 
-// Methods
 const formatPrice = (price) => {
   return new Intl.NumberFormat('da-DK', {
     style: 'currency',
     currency: 'DKK'
   }).format(price);
-};
-
-const isInStock = (item) => {
-  if (item.selectedVariant) {
-    return item.selectedVariant.stock > item.quantity;
-  }
-  return item.stock > item.quantity;
 };
 
 const applyCoupon = async (code) => {

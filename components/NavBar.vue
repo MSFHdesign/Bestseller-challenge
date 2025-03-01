@@ -172,24 +172,123 @@
         @close="closeSidebar"
         class="z-50"
     />
+
+    <!-- Add Cart Drawer -->
+    <div 
+        v-if="isCartOpen" 
+        class="fixed inset-0 bg-black bg-opacity-50 z-50"
+        @click="closeCart"
+    ></div>
+
+    <div 
+        v-if="isCartOpen"
+        class="fixed top-0 right-0 h-full w-full sm:w-96 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out"
+        :class="{ 'translate-x-0': isCartOpen, 'translate-x-full': !isCartOpen }"
+    >
+        <div class="flex flex-col h-full">
+            <!-- Cart Header -->
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 class="text-lg font-semibold">Your Cart ({{ cartItems.length }})</h2>
+                <button @click="closeCart" class="p-2 text-gray-500 hover:text-gray-700">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Cart Content -->
+            <div class="flex-grow overflow-y-auto p-4">
+                <div v-if="cartItems.length === 0" class="text-center py-8">
+                    <p class="text-gray-500">Your cart is empty</p>
+                    <button 
+                        @click="closeCart" 
+                        class="mt-4 px-4 py-2 bg-black text-white hover:bg-gray-800 transition-colors"
+                    >
+                        Continue Shopping
+                    </button>
+                </div>
+                
+                <div v-else class="space-y-4">
+                    <div v-for="(item, index) in cartItems.slice(0, 3)" :key="item.id" class="flex items-center gap-3 py-3">
+                        <img :src="item.images[0]" :alt="item.name" class="w-12 h-16 object-cover rounded">
+                        <div class="flex-grow">
+                            <h3 class="font-medium">{{ item.name.dk || item.name.en }}</h3>
+                            <p v-if="item.selectedSize" class="text-sm text-gray-500">
+                                Størrelse: {{ item.selectedSize }}
+                            </p>
+                            <p v-else-if="!item.size || item.size.length === 0" class="text-sm text-gray-500">
+                                One Size
+                            </p>
+                            <div class="flex items-center justify-between mt-1">
+                                <div class="flex items-center gap-2">
+                                    <button @click="decreaseQuantity(index)" class="text-gray-400 hover:text-gray-600">-</button>
+                                    <span class="text-sm">{{ item.quantity || 1 }}</span>
+                                    <button @click="increaseQuantity(index)" class="text-gray-400 hover:text-gray-600">+</button>
+                                </div>
+                                <span class="text-sm font-medium">{{ item.price }} kr.</span>
+                            </div>
+                        </div>
+                        <button @click="removeFromCart(index)" class="text-gray-400 hover:text-red-500">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cart Footer -->
+            <div v-if="cartItems.length > 0" class="border-t p-4">
+                <div class="flex justify-between mb-4">
+                    <span>Subtotal</span>
+                    <span class="font-semibold">{{ formatPrice(cartTotal) }}</span>
+                </div>
+                <button 
+                    @click="navigateToCart"
+                    class="w-full py-3 bg-black text-white hover:bg-gray-800 transition-colors"
+                >
+                    Checkout
+                </button>
+                <button 
+                    @click="closeCart" 
+                    class="w-full py-2 mt-2 text-gray-700 hover:text-black transition-colors"
+                >
+                    Continue Shopping
+                </button>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useCart } from "@/composables/useCart";
 import data from '@/server/data/data.json';
 import SidebarMenu from '@/components/SidebarMenu.vue';
 import { useProducts } from '~/composables/useProducts';
 
 const route = useRoute();
-const { cart } = useCart();
+const router = useRouter();
+const { cart, removeItem, updateQuantity } = useCart();
 const { products, refresh, loading, hasInitialized } = useProducts();
 const cartItems = computed(() => cart.value);
 const isCartOpen = ref(false);
 const isMobileMenuOpen = ref(false);
 const isSidebarOpen = ref(false);
 const allProducts = computed(() => products.value || []);
+
+// Calculate cart total
+const cartTotal = computed(() => {
+    return cartItems.value.reduce((total, item) => {
+        return total + (item.price * (item.quantity || 1));
+    }, 0);
+});
+
+// Format price
+const formatPrice = (price) => {
+    return `${price.toFixed(2)} kr`;
+};
 
 // Get main categories (excluding root)
 const mainCategories = computed(() => {
@@ -199,6 +298,11 @@ const mainCategories = computed(() => {
 const toggleCart = () => {
     isCartOpen.value = !isCartOpen.value;
     isMobileMenuOpen.value = false;
+    isSidebarOpen.value = false;
+};
+
+const closeCart = () => {
+    isCartOpen.value = false;
 };
 
 const toggleMobileMenu = () => {
@@ -213,6 +317,25 @@ const toggleSidebar = () => {
 
 const closeSidebar = () => {
     isSidebarOpen.value = false;
+};
+
+// Cart item quantity management
+const increaseQuantity = (index) => {
+    const item = cartItems.value[index];
+    const newQuantity = (item.quantity || 1) + 1;
+    updateQuantity(index, newQuantity);
+};
+
+const decreaseQuantity = (index) => {
+    const item = cartItems.value[index];
+    const currentQuantity = item.quantity || 1;
+    if (currentQuantity > 1) {
+        updateQuantity(index, currentQuantity - 1);
+    }
+};
+
+const removeFromCart = (index) => {
+    removeItem(index);
 };
 
 // Update the refresh function
@@ -238,6 +361,12 @@ onMounted(async () => {
         await refreshData();
     }
 });
+
+// Add navigation function
+const navigateToCart = () => {
+    closeCart();
+    router.push('/cart');
+};
 </script>
 
 <style scoped>

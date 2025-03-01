@@ -61,15 +61,26 @@
                 </div>
             </NuxtLink>
 
-            <!-- CTA Button - Always at Bottom -->
+            <!-- CTA Button Area - Always at Bottom -->
             <div class="mt-auto">
-                <NuxtLink 
+                <!-- Quick Add to Cart Button (when product has no sizes) -->
+                <button v-if="product.stock > 0 && (!product.size || product.size.length === 0)"
+                    @click.prevent="handleAddToCart"
+                    class="block w-full bg-black dark:bg-white text-white dark:text-black h-[50px] font-medium 
+                        hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors duration-300
+                        text-center leading-[50px]"
+                >
+                    Læg i kurv
+                </button>
+                
+                <!-- View Product Button (when product has sizes or is out of stock) -->
+                <NuxtLink v-else
                     :to="`/product/${product.id}`"
                     class="block w-full bg-black dark:bg-white text-white dark:text-black h-[50px] font-medium 
                         hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors duration-300
                         disabled:bg-gray-300 disabled:cursor-not-allowed text-center leading-[50px]"
                 >
-                    Se produkt →
+                    {{ product.stock > 0 ? 'Vælg størrelse →' : 'Ikke på lager' }}
                 </NuxtLink>
             </div>
         </div>
@@ -80,6 +91,7 @@
 import { ref, computed } from 'vue';
 import { useWishlist } from '~/composables/useWishlist';
 import { useCart } from '~/composables/useCart';
+import { useToast } from '~/composables/useToast';
 
 const props = defineProps({
     product: {
@@ -90,6 +102,7 @@ const props = defineProps({
 
 const { isInWishlist, toggleWishlist } = useWishlist();
 const { cart, addToCart } = useCart();
+const toast = useToast();
 
 // Check if product is in wishlist
 const isProductInWishlist = computed(() => {
@@ -98,9 +111,16 @@ const isProductInWishlist = computed(() => {
 
 // Handle add to cart
 const handleAddToCart = () => {
-    addToCart(props.product);
-    // Optional: Add notification or feedback here
-    console.log('Added to cart:', props.product.name.dk || props.product.name.en);
+    // Only add to cart if product has no sizes
+    if (props.product.stock > 0 && (!props.product.size || props.product.size.length === 0)) {
+        addToCart(props.product);
+        
+        // Add notification feedback
+        toast.addToast('Produkt tilføjet til kurven! 🛍️', 'success', 5000, {
+            label: 'Gå til kurv',
+            onClick: () => navigateTo('/cart')
+        });
+    }
 };
 </script>
 

@@ -84,6 +84,7 @@ import { ref, computed, onMounted, defineAsyncComponent } from 'vue';
 import { useRoute } from 'vue-router';
 import { useWishlist } from '~/composables/useWishlist';
 import { useCart } from '~/composables/useCart';
+import { useToast } from '~/composables/useToast';
 import { TransitionFade, TransitionScale } from '~/components/transitions';
 
 // Import components using @/ or ~/ for Nuxt path aliases
@@ -101,6 +102,7 @@ const ProductError = defineAsyncComponent(() => import('@/components/product/Pro
 const route = useRoute();
 const { isInWishlist, toggleWishlist } = useWishlist();
 const { addToCart } = useCart();
+
 
 // State
 const product = ref(null);
@@ -124,21 +126,31 @@ const availableSizes = computed(() => {
   const sizes = new Set();
   
   if (currentVariant.value) {
-    currentVariant.value.size.forEach(size => sizes.add(size));
+    // Use sizes from selected variant
+    currentVariant.value.size?.forEach(size => sizes.add(size));
   } else {
-    // Add direct sizes
-    if (product.value.sizes) {
-      product.value.sizes.forEach(size => sizes.add(size));
+    // Add direct sizes from product
+    if (product.value.size) {
+      product.value.size.forEach(size => sizes.add(size));
     }
     // Add all variant sizes if no variant selected
     if (product.value.variant) {
       product.value.variant.forEach(v => {
-        v.size.forEach(size => sizes.add(size));
+        v.size?.forEach(size => sizes.add(size));
       });
     }
   }
   
-  return Array.from(sizes).sort();
+  // Convert to array and sort
+  // Handle both numeric and string sizes
+  return Array.from(sizes).sort((a, b) => {
+    // If both are numbers or can be converted to numbers
+    if (!isNaN(Number(a)) && !isNaN(Number(b))) {
+      return Number(a) - Number(b);
+    }
+    // Otherwise sort as strings
+    return String(a).localeCompare(String(b));
+  });
 });
 
 const getStockStatus = computed(() => {
@@ -150,8 +162,20 @@ const getStockStatus = computed(() => {
 
 const canAddToCart = computed(() => {
   if (!product.value) return false;
-  if (product.value.sizes && !selectedSize.value) return false;
-  return product.value.stock > 0;
+  
+  // Check if product has sizes (either directly or through variants)
+  const hasSizes = product.value.size?.length > 0 || product.value.variant?.some(v => v.size?.length > 0);
+  
+  // If product has sizes but none selected, disable add to cart
+  if (hasSizes && !selectedSize.value) return false;
+  
+  // Check stock based on variant or main product
+  const stockToCheck = currentVariant.value?.stock ?? product.value.stock;
+  
+  // Handle "Unlimited" stock case (some products have this as a string)
+  if (stockToCheck === "Unlimited") return true;
+  
+  return stockToCheck > 0;
 });
 
 const getActionButtonText = computed(() => {
@@ -197,16 +221,28 @@ const fetchProducts = async () => {
 
 const isSizeInStock = (size) => {
   if (!product.value) return false;
-  // Check direct stock
-  if (product.value.sizes && product.value.stock > 0) {
-    return product.value.sizes.includes(size);
+  
+  // If we have a selected variant, check only that variant's stock and sizes
+  if (currentVariant.value) {
+    return currentVariant.value.stock > 0 && currentVariant.value.size?.includes(size);
   }
+  
+  // Check direct product stock and sizes
+  if (product.value.size && product.value.stock > 0) {
+    // Handle "Unlimited" stock case
+    if (product.value.stock === "Unlimited" || typeof product.value.stock === 'string') {
+      return product.value.size.includes(size);
+    }
+    return product.value.size.includes(size);
+  }
+  
   // Check variant stock
   if (product.value.variant) {
     return product.value.variant.some(v => 
-      v.size.includes(size) && v.stock > 0
+      v.size?.includes(size) && (v.stock === "Unlimited" || v.stock > 0)
     );
   }
+  
   return false;
 };
 
@@ -219,14 +255,27 @@ const handleVariantSelect = (variant) => {
 const handleAddToCart = () => {
   if (!canAddToCart.value) return;
   
+  // Determine which stock value to use
+  const stockToUse = currentVariant.value?.stock ?? product.value.stock;
+  
   const productToAdd = {
     ...product.value,
     selectedSize: selectedSize.value,
-    selectedVariant: currentVariant.value
+    selectedVariant: currentVariant.value,
+    quantity: 1,
+    // Ensure stock is properly passed to cart
+    stock: stockToUse
   };
   
+  console.log('Adding to cart with size:', selectedSize.value); // Debug log
   addToCart(productToAdd);
-  // Add toast notification here
+  
+  // Use the toast notification from ProductActions.vue
+  const { addToast } = useToast();
+  addToast('Produkt tilføjet til kurven! 🛍️', 'success', 5000, {
+    label: 'Gå til kurv',
+    onClick: () => navigateTo('/cart')
+  });
 };
 
 const handleStockNotification = async () => {

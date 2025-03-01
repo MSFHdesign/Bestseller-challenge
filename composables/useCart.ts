@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 
 // Create a single shared cart instance
 const cart = ref([])
@@ -20,22 +20,37 @@ export function useCart() {
     }
 
     const addToCart = (product) => {
-        const existingItem = cart.value.find(item => item.id === product.id)
-        if (existingItem) {
-            existingItem.quantity++
+        // Create a copy of the product to avoid reference issues
+        const productToAdd = { ...product, quantity: 1 }
+        
+        // Find if this product (with same variant and size) already exists in cart
+        const existingItemIndex = cart.value.findIndex(item => 
+            item.id === product.id && 
+            item.selectedSize === product.selectedSize &&
+            ((!item.selectedVariant && !product.selectedVariant) ||
+             (item.selectedVariant?.id === product.selectedVariant?.id))
+        )
+        
+        if (existingItemIndex >= 0) {
+            // Update quantity of existing item
+            const updatedCart = [...cart.value]
+            updatedCart[existingItemIndex].quantity += 1
+            cart.value = updatedCart
         } else {
-            cart.value.push({ ...product, quantity: 1 })
+            // Add new item to cart
+            cart.value = [...cart.value, productToAdd]
         }
     }
 
-    const removeFromCart = (productId) => {
-        cart.value = cart.value.filter(item => item.id !== productId)
+    const removeItem = (index) => {
+        cart.value.splice(index, 1)
     }
 
-    const updateQuantity = (productId, quantity) => {
-        const item = cart.value.find(item => item.id === productId)
-        if (item) {
-            item.quantity = quantity
+    const updateQuantity = (index, quantity) => {
+        if (index >= 0 && index < cart.value.length) {
+            const updatedCart = [...cart.value]
+            updatedCart[index].quantity = quantity
+            cart.value = updatedCart
         }
     }
 
@@ -43,11 +58,18 @@ export function useCart() {
         cart.value = []
     }
 
+    const cartTotal = computed(() => {
+        return cart.value.reduce((total, item) => {
+            return total + (item.price * (item.quantity || 1))
+        }, 0)
+    })
+
     return {
         cart,
         addToCart,
-        removeFromCart,
+        removeItem,
         updateQuantity,
-        clearCart
+        clearCart,
+        cartTotal
     }
 }
