@@ -1,7 +1,20 @@
 import { ref, watch, computed } from 'vue'
 
-// Create a single shared cart instance
-const cart = ref([])
+// Define the CartItem interface
+interface CartItem {
+  id: string | number
+  price: number
+  quantity: number
+  selectedSize?: string
+  selectedVariant?: {
+    id: string | number
+    [key: string]: any
+  }
+  [key: string]: any
+}
+
+// Create a single shared cart instance with proper typing
+const cart = ref<CartItem[]>([])
 
 // Initialize cart from localStorage
 if (process.client) {
@@ -19,7 +32,7 @@ export function useCart() {
         }, { deep: true })
     }
 
-    const addToCart = (product) => {
+    const addToCart = (product: CartItem) => {
         // Create a copy of the product to avoid reference issues
         const productToAdd = { ...product, quantity: 1 }
         
@@ -42,11 +55,11 @@ export function useCart() {
         }
     }
 
-    const removeItem = (index) => {
+    const removeItem = (index: number) => {
         cart.value.splice(index, 1)
     }
 
-    const updateQuantity = (index, quantity) => {
+    const updateQuantity = (index: number, quantity: number) => {
         if (index >= 0 && index < cart.value.length) {
             const updatedCart = [...cart.value]
             updatedCart[index].quantity = quantity

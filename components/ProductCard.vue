@@ -1,5 +1,5 @@
 <template>
-    <div class="group relative bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full">
+    <div class="group relative bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-[500px]">
         <!-- Wishlist Button -->
         <button @click.prevent="toggleWishlist" 
             class="absolute top-4 right-4 z-10 bg-white/80 dark:bg-gray-800/80 p-2 rounded-full shadow-md hover:scale-110 transition-transform">
@@ -36,7 +36,7 @@
             </div>
 
             <!-- Product Info -->
-            <NuxtLink :to="`/product/${product.id}`" class="flex flex-col flex-grow p-4">
+            <NuxtLink :to="`/product/${product.id}`" class="flex flex-col flex-grow p-4 overflow-hidden">
                 <div class="flex flex-col h-full">
                     <!-- Brand if exists -->
                     <p v-if="product.brand" class="text-sm text-gray-500 dark:text-gray-400 mb-1 truncate">
@@ -49,7 +49,7 @@
                     </h2>
 
                     <!-- Price Section -->
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 mt-auto">
                         <span v-if="product.originalPrice && product.originalPrice > product.price" 
                             class="text-sm text-gray-400 line-through">
                             {{ product.originalPrice }} DKK

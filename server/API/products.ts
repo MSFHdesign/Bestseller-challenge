@@ -45,7 +45,7 @@ export default defineEventHandler((event) => {
 
   // Update the declaration with type
   let expandedProducts: Product[] = [];
-  // Udvid produkter med deres varianter
+ 
   data.products.forEach((product) => {
     // Hovedproduktet
     const mainProduct: Product = {

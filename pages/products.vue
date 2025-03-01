@@ -88,10 +88,9 @@ import { useProducts } from '~/composables/useProducts';
 import SearchProducts from '~/components/SearchProducts.vue';
 import ProductCard from '~/components/ProductCard.vue';
 import ProductPromo from '~/components/ProductPromo.vue';
-import data from '@/server/data/data.json';
+
 
 const route = useRoute();
-const router = useRouter();
 const showFilters = ref(false);
 
 // Get all products from the composable with loading state
