@@ -8,25 +8,25 @@
       No products loaded
     </div>
     
-    <div v-if="loading" class="container mx-auto px-6 py-16">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div v-if="loading" class="container mx-auto px-4 sm:px-6 py-8 sm:py-16">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <div v-for="n in 8" :key="n" class="h-[400px] bg-gray-100 rounded-xl animate-pulse"></div>
       </div>
     </div>
     
-    <div v-else class="container mx-auto px-6 py-16 space-y-24">
+    <div v-else>
       <!-- Hero Section -->
       <HeroSection />
 
       <!-- Main Content -->
-      <div class="container mx-auto px-6 py-16 space-y-24">
+      <div class="container mx-auto px-4 sm:px-6 py-8 sm:py-16 space-y-12 sm:space-y-24">
         <!-- Women's Section -->
-        <section class="space-y-8">
+        <section class="space-y-4 sm:space-y-8">
           <div class="flex justify-between items-center">
-            <h2 class="text-3xl font-bold">Kvinder</h2>
+            <h2 class="text-2xl sm:text-3xl font-bold">Kvinder</h2>
             <NuxtLink 
               to="/products?category=women_clothes" 
-              class="text-sm font-medium hover:underline"
+              class="text-xs sm:text-sm font-medium hover:underline"
             >
               Se alle →
             </NuxtLink>
@@ -44,12 +44,12 @@
         </section>
 
         <!-- Men's Section -->
-        <section class="space-y-8">
+        <section class="space-y-4 sm:space-y-8">
           <div class="flex justify-between items-center">
-            <h2 class="text-3xl font-bold">Mænd</h2>
+            <h2 class="text-2xl sm:text-3xl font-bold">Mænd</h2>
             <NuxtLink 
               to="/products?category=men_clothes" 
-              class="text-sm font-medium hover:underline"
+              class="text-xs sm:text-sm font-medium hover:underline"
             >
               Se alle →
             </NuxtLink>
@@ -60,11 +60,6 @@
             category="men_clothes"
           />
         </section>
-
-   
-
-      
-       
       </div>
     </div>
 

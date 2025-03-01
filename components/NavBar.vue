@@ -1,15 +1,15 @@
 <template>
     <nav class="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md border-b border-gray-100 z-40">
-        <div class="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 lg:px-8 py-3">
+        <div class="max-w-7xl mx-auto flex justify-between items-center px-3 sm:px-6 lg:px-8 py-2 sm:py-3">
             <!-- Left Section with Logo and Sidebar Toggle -->
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 sm:gap-4">
                 <!-- Sidebar Toggle Button -->
                 <button 
                     @click="toggleSidebar"
-                    class="p-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    class="p-1 sm:p-2 text-gray-500 hover:text-gray-700 focus:outline-none"
                     aria-label="Toggle sidebar navigation"
                 >
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
@@ -18,7 +18,7 @@
                 <NuxtLink to="/" class="flex-shrink-0" @click="refreshData">
                     <img src="https://bestseller.com/media/jvnn3xxh/bestseller_logo_black_2021-1.png" 
                          alt="Bestseller" 
-                         class="h-8 w-auto"
+                         class="h-5 sm:h-6 md:h-8 w-auto"
                     />
                 </NuxtLink>
             </div>
@@ -73,7 +73,7 @@
             </div>
 
             <!-- Right Side Actions -->
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-1 sm:space-x-4">
                 <!-- Search Button (Desktop) -->
                 <button 
                     @click="toggleSidebar"
@@ -86,7 +86,7 @@
                 </button>
                 
                 <!-- Wishlist -->
-                <NuxtLink to="/wishlist" class="p-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                <NuxtLink to="/wishlist" class="p-1 sm:p-2 text-gray-500 hover:text-gray-700 focus:outline-none">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
@@ -95,7 +95,7 @@
                 <!-- Cart -->
                 <button 
                     @click="toggleCart"
-                    class="p-2 text-gray-500 hover:text-gray-700 focus:outline-none relative"
+                    class="p-1 sm:p-2 text-gray-500 hover:text-gray-700 focus:outline-none relative"
                     aria-label="Shopping cart"
                 >
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -110,13 +110,13 @@
                 <!-- Mobile Menu Toggle -->
                 <button 
                     @click="toggleMobileMenu"
-                    class="lg:hidden p-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    class="lg:hidden p-1 sm:p-2 text-gray-500 hover:text-gray-700 focus:outline-none"
                     aria-label="Toggle mobile menu"
                 >
-                    <svg v-if="!isMobileMenuOpen" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg v-if="!isMobileMenuOpen" class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
                     </svg>
-                    <svg v-else class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg v-else class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
@@ -144,6 +144,18 @@
                                         @click="toggleMobileMenu">
                                         {{ subCategory.name.dk }}
                                     </NuxtLink>
+                                    
+                                    <!-- Add third level categories -->
+                                    <ul v-if="subCategory.categories" class="pl-4 mt-1 space-y-1">
+                                        <li v-for="thirdLevel in subCategory.categories" :key="thirdLevel.id">
+                                            <NuxtLink 
+                                                :to="`/products?category=${thirdLevel.id}`"
+                                                class="block text-xs text-gray-500 py-1"
+                                                @click="toggleMobileMenu">
+                                                {{ thirdLevel.name.dk }}
+                                            </NuxtLink>
+                                        </li>
+                                    </ul>
                                 </li>
                             </ul>
                         </li>

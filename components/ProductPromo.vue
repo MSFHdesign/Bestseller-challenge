@@ -13,10 +13,10 @@
       
       <!-- Overlay -->
       <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
-        <div class="absolute bottom-0 left-0 p-6 text-white">
-          <h3 class="text-xl font-bold mb-2">{{ promo._alias || 'Shop Now' }}</h3>
-          <span class="inline-flex items-center text-sm font-medium">
-            Se mere <span class="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+        <div class="absolute bottom-0 left-0 p-3 sm:p-6 text-white">
+          <h3 class="text-lg sm:text-xl font-bold mb-1 sm:mb-2">{{ promo._alias || 'Shop Now' }}</h3>
+          <span class="inline-flex items-center text-xs sm:text-sm font-medium">
+            Se mere <span class="ml-1 sm:ml-2 group-hover:translate-x-1 transition-transform">→</span>
           </span>
         </div>
       </div>
@@ -37,9 +37,12 @@ const props = defineProps({
 const getAspectRatio = computed(() => {
   if (!props.promo?.type) return '1/1';
   
+  // Responsive aspect ratios
+  const isMobile = window?.innerWidth < 640;
+  
   switch (props.promo.type) {
-    case '2x2': return '2/1'; // Ændret fra 2/2 til 2/1 for at gøre det mindre højt
-    case '2x1': return '2/1';
+    case '2x2': return isMobile ? '1/1' : '2/1'; 
+    case '2x1': return isMobile ? '3/2' : '2/1';
     case '1x2': return '1/2';
     default: return '1/1';
   }
@@ -56,16 +59,34 @@ const getFocalPoint = computed(() => {
 .promo-2x2 {
   grid-column: span 2;
   grid-row: span 2;
-  max-height: calc(2 * var(--product-card-height, 400px));
+  height: auto;
+  max-height: none;
+  aspect-ratio: 2/1;
+}
+
+@media (max-width: 640px) {
+  .promo-2x2 {
+    aspect-ratio: 1/1;
+  }
 }
 
 .promo-2x1 {
   grid-column: span 2;
-  max-height: var(--product-card-height, 400px);
+  height: auto;
+  max-height: none;
+  aspect-ratio: 2/1;
+}
+
+@media (max-width: 640px) {
+  .promo-2x1 {
+    aspect-ratio: 3/2;
+  }
 }
 
 .promo-1x2 {
   grid-row: span 2;
-  max-height: calc(2 * var(--product-card-height, 400px));
+  height: auto;
+  max-height: none;
+  aspect-ratio: 1/2;
 }
 </style>
