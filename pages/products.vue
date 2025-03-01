@@ -43,26 +43,24 @@
 
                 <!-- Product Grid with Promotions -->
                 <div v-if="mixedItems.length > 0" 
-                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                    style="grid-template-rows: auto;"
+                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                 >
                     <template v-for="item in mixedItems" :key="item.id || `promo-${item.position}`">
                         <!-- Promotion Spot -->
                         <div
                             v-if="item.isPromo"
                             :class="getPromoContainerClass(item)"
-                            
                         >
                             <ProductPromo 
                                 :promo="item"
-                                class="h-full"
+                                class="h-full w-full"
                             />
                         </div>
                         <!-- Product Card -->
                         <ProductCard 
                             v-else 
                             :product="item"
-                            class="h-full"
+                            class="h-full w-full"
                         />
                     </template>
                 </div>
@@ -191,42 +189,35 @@ onMounted(() => {
 
 // Helper function to calculate promo container classes
 const getPromoContainerClass = (promo) => {
-    // Parse aspect ratio
-    const [width, height] = promo.image.aspectRatio.split(':').map(Number);
-    const aspectRatio = width / height;
-    
     const baseClasses = {
+        'relative': true,
         'h-full': true,
-        'relative': true
+        'w-full': true,
     };
     
-    // Calculate height based on type and aspect ratio
+    // Calculate grid span based on promo type
     switch (promo.type) {
         case '2x2':
             return {
                 ...baseClasses,
-                'md:col-span-2 lg:col-span-2 xl:col-span-2': true,
-                'h-[600px] md:h-[800px]': true
+                'sm:col-span-2 row-span-2': true,
             };
         case '2x1':
             return {
                 ...baseClasses,
-                'md:col-span-2': true,
+                'sm:col-span-2 row-span-1': true,
             };
         case '1x2':
             return {
                 ...baseClasses,
-                'md:row-span-2': true,
-                'h-full': true,
-                'min-h-[800px]': true
+                'col-span-1 row-span-2': true,
             };
         case '1x1':
+        default:
             return {
                 ...baseClasses,
-                'h-[400px]': true
+                'col-span-1 row-span-1': true,
             };
-        default:
-            return baseClasses;
     }
 };
 
@@ -309,19 +300,42 @@ watch(() => allProducts.value, () => {
 <style scoped>
 .grid {
     grid-auto-flow: dense;
-    grid-auto-rows: minmax(400px, auto);
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    grid-auto-rows: 500px;
+    gap: 1.5rem;
 }
 
-/* Force 1x2 promos to span 2 rows with fixed height */
-[style*="grid-row: span 2"] {
-    height: 800px !important;
+@media (min-width: 640px) {
+    .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
-@media (max-width: 768px) {
+@media (min-width: 1024px) {
+    .grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1280px) {
+    .grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 639px) {
     .grid > * {
         grid-column: 1 / -1 !important;
-        grid-row: auto !important;
-        height: 400px !important;
+        grid-row: span 1 !important;
+        height: 500px !important;
+    }
+    
+    /* Make 2x2 promos taller on mobile */
+    .grid > div[class*="row-span-2"] {
+        grid-row: span 2 !important;
+        height: 1000px !important;
     }
 }
 </style> 
