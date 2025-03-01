@@ -63,7 +63,7 @@ export function useProducts() {
     () => $fetch<{ products: Product[] }>('/api/products'),
     {
       // Add these options to prevent unnecessary refetches
-      watch: false,
+      watch: [],
       lazy: true,
       transform: (data) => {
         productsState.value = data.products || [];
@@ -77,7 +77,7 @@ export function useProducts() {
     () => $fetch<{ promotionalSpots: PromotionalSpot[] }>('/api/promotions'),
     {
       // Add these options to prevent unnecessary refetches
-      watch: false,
+      watch: [],
       lazy: true,
       transform: (data) => {
         promotionalSpotsState.value = data.promotionalSpots || [];
