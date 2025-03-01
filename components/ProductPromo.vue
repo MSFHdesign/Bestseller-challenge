@@ -3,12 +3,12 @@
     <NuxtLink v-if="promo?.link" :to="promo.link" class="group relative block h-full">
       <img 
         :src="promo.image?.imageUrl" 
-        :alt="promo.imageAltText || 'Promotional image'"
+        :alt="promo.image?.alt || promo.imageAltText ||  'Promotional image'"
         :style="{
           aspectRatio: getAspectRatio,
           objectPosition: getFocalPoint
         }"
-        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        class="w-full h-full object-fill transition-transform duration-500 group-hover:scale-105"
       />
       
       <!-- Overlay -->
@@ -87,6 +87,7 @@ const getFocalPoint = computed(() => {
   grid-row: span 2;
   height: auto;
   max-height: none;
+
   aspect-ratio: 1/2;
 }
 </style>

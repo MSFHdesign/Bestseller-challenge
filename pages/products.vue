@@ -44,12 +44,14 @@
                 <!-- Product Grid with Promotions -->
                 <div v-if="mixedItems.length > 0" 
                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                    style="grid-template-rows: auto;"
                 >
                     <template v-for="item in mixedItems" :key="item.id || `promo-${item.position}`">
                         <!-- Promotion Spot -->
                         <div
                             v-if="item.isPromo"
                             :class="getPromoContainerClass(item)"
+                            
                         >
                             <ProductPromo 
                                 :promo="item"
@@ -83,7 +85,6 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useProducts } from '~/composables/useProducts';
-import NavBar from '~/components/NavBar.vue';
 import SearchProducts from '~/components/SearchProducts.vue';
 import ProductCard from '~/components/ProductCard.vue';
 import ProductPromo from '~/components/ProductPromo.vue';
@@ -205,14 +206,20 @@ const getPromoContainerClass = (promo) => {
         case '2x2':
             return {
                 ...baseClasses,
-                'md:col-span-2 lg:col-span-3 xl:col-span-4': true,
+                'md:col-span-2 lg:col-span-2 xl:col-span-2': true,
                 'h-[600px] md:h-[800px]': true
             };
         case '2x1':
             return {
                 ...baseClasses,
                 'md:col-span-2': true,
-                'h-[300px] md:h-[400px]': true
+            };
+        case '1x2':
+            return {
+                ...baseClasses,
+                'md:row-span-2': true,
+                'h-full': true,
+                'min-h-[800px]': true
             };
         case '1x1':
             return {
@@ -303,11 +310,19 @@ watch(() => allProducts.value, () => {
 <style scoped>
 .grid {
     grid-auto-flow: dense;
+    grid-auto-rows: minmax(400px, auto);
+}
+
+/* Force 1x2 promos to span 2 rows with fixed height */
+[style*="grid-row: span 2"] {
+    height: 800px !important;
 }
 
 @media (max-width: 768px) {
     .grid > * {
         grid-column: 1 / -1 !important;
+        grid-row: auto !important;
+        height: 400px !important;
     }
 }
 </style> 
