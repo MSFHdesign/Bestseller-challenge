@@ -167,6 +167,22 @@
         </div>
       </div>
 
+      <!-- Coupon Code -->
+      <div class="space-y-2">
+        <input
+          v-model="couponCode"
+          type="text"
+          placeholder="Rabatkode"
+          class="w-full px-4 py-2 border rounded-lg text-sm"
+        />
+        <button 
+          @click="applyCoupon"
+          class="w-full py-2 text-blue-600 hover:bg-blue-50 rounded-lg text-sm transition-colors"
+        >
+          Anvend rabatkode
+        </button>
+      </div>
+
       <!-- Free Shipping Progress -->
       <div 
         v-if="freeShippingThreshold > subtotal"
@@ -207,7 +223,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useToast } from '~/composables/useToast';
 
 const props = defineProps({
@@ -219,6 +235,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'update:cartItems']);
 const toast = useToast();
+const couponCode = ref('');
 
 // Constants
 const freeShippingThreshold = 500;
@@ -237,12 +254,21 @@ const shipping = computed(() =>
   subtotal.value >= freeShippingThreshold ? 0 : baseShipping
 );
 
+// Tilføj en state for at holde styr på rabat fra rabatkode
+const couponDiscount = ref(0);
+
 const discount = computed(() => {
-  // Example: 10% off when buying 3 or more items
+  let totalDiscount = 0;
+  
+  // Mængderabat: 10% ved køb af 3 eller flere varer
   if (itemCount.value >= 3) {
-    return subtotal.value * 0.1;
+    totalDiscount += subtotal.value * 0.1;
   }
-  return 0;
+  
+  // Tilføj rabat fra rabatkode
+  totalDiscount += couponDiscount.value;
+  
+  return totalDiscount;
 });
 
 const total = computed(() => 
@@ -294,6 +320,40 @@ const isInStock = (item) => {
   }
   // Otherwise check main product stock
   return item.stock > item.quantity;
+};
+
+const applyCoupon = () => {
+  // Eksempel på rabatkoder
+  const validCoupons = {
+    'SOMMER10': { type: 'percentage', value: 0.1, name: '10% rabat' },
+    'VELKOMST': { type: 'fixed', value: 100, name: '100 kr. rabat' },
+    'FRIFRAGT': { type: 'shipping', value: 0, name: 'Fri fragt' }
+  };
+
+  if (!couponCode.value) {
+    toast.addToast('Indtast en rabatkode', 'info');
+    return;
+  }
+
+  const coupon = validCoupons[couponCode.value.toUpperCase()];
+  
+  if (coupon) {
+    if (coupon.type === 'percentage') {
+      couponDiscount.value = subtotal.value * coupon.value;
+      toast.addToast(`Rabatkode anvendt: ${coupon.name}`, 'success');
+    } else if (coupon.type === 'fixed') {
+      couponDiscount.value = Math.min(coupon.value, subtotal.value);
+      toast.addToast(`Rabatkode anvendt: ${coupon.name}`, 'success');
+    } else if (coupon.type === 'shipping') {
+      // Håndteres gennem en separat state hvis nødvendigt
+      toast.addToast(`Rabatkode anvendt: ${coupon.name}`, 'success');
+    }
+  } else {
+    toast.addToast('Ugyldig rabatkode', 'error');
+  }
+  
+  // Nulstil rabatkode input
+  couponCode.value = '';
 };
 
 const checkout = () => {

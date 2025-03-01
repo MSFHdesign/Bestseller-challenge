@@ -53,12 +53,19 @@ const handleAddToCart = () => {
 };
 
 const handleToggleWishlist = () => {
+  // First check current state
+  const wasInWishlist = props.isInWishlist;
+  
+  // Then emit the toggle event
   emit('toggle-wishlist');
   
-  if (props.isInWishlist) {
-    addToast('Tilføjet til favoritter ❤️', 'success', 3000);
-  } else {
+  // Show appropriate message based on the previous state
+  if (wasInWishlist) {
+    // If it was in wishlist before toggling, it's now removed
     addToast('Fjernet fra favoritter 🤍', 'info', 3000);
+  } else {
+    // If it wasn't in wishlist before toggling, it's now added
+    addToast('Tilføjet til favoritter ❤️', 'success', 3000);
   }
 };
 </script> 

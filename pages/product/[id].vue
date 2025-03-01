@@ -84,8 +84,7 @@ import { ref, computed, onMounted, defineAsyncComponent } from 'vue';
 import { useRoute } from 'vue-router';
 import { useWishlist } from '~/composables/useWishlist';
 import { useCart } from '~/composables/useCart';
-import { useToast } from '~/composables/useToast';
-import { TransitionFade, TransitionScale } from '~/components/transitions';
+import { TransitionFade, } from '~/components/transitions';
 
 // Import components using @/ or ~/ for Nuxt path aliases
 const ProductGallery = defineAsyncComponent(() => import('@/components/product/ProductGallery.vue'));
@@ -270,12 +269,7 @@ const handleAddToCart = () => {
   console.log('Adding to cart with size:', selectedSize.value); // Debug log
   addToCart(productToAdd);
   
-  // Use the toast notification from ProductActions.vue
-  const { addToast } = useToast();
-  addToast('Produkt tilføjet til kurven! 🛍️', 'success', 5000, {
-    label: 'Gå til kurv',
-    onClick: () => navigateTo('/cart')
-  });
+  
 };
 
 const handleStockNotification = async () => {

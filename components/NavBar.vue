@@ -86,10 +86,17 @@
                 </button>
                 
                 <!-- Wishlist -->
-                <NuxtLink to="/wishlist" class="p-1 sm:p-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                <NuxtLink to="/wishlist" class="p-1 sm:p-2 text-gray-500 hover:text-gray-700 focus:outline-none relative">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
+                    <!-- Wishlist Count Badge -->
+                    <span 
+                        v-if="wishlistCount > 0" 
+                        class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center"
+                    >
+                        {{ wishlistCount }}
+                    </span>
                 </NuxtLink>
                 
                 <!-- Cart -->
@@ -264,6 +271,8 @@
 import { ref, computed, watch, onMounted } from "vue";
 import { useRoute, useRouter } from 'vue-router';
 import { useCart } from "@/composables/useCart";
+import { useWishlist } from '~/composables/useWishlist';
+import { useEventBus } from '~/composables/useEventBus';
 import data from '@/server/data/data.json';
 import SidebarMenu from '@/components/SidebarMenu.vue';
 import { useProducts } from '~/composables/useProducts';
@@ -272,6 +281,9 @@ const route = useRoute();
 const router = useRouter();
 const { cart, removeItem, updateQuantity } = useCart();
 const { products, refresh, loading, hasInitialized } = useProducts();
+const { wishlist } = useWishlist();
+const { on } = useEventBus();
+
 const cartItems = computed(() => cart.value);
 const isCartOpen = ref(false);
 const isMobileMenuOpen = ref(false);
@@ -293,6 +305,17 @@ const formatPrice = (price) => {
 // Get main categories (excluding root)
 const mainCategories = computed(() => {
     return data.categories.categories.filter(cat => cat.id !== 'root');
+});
+
+// Wishlist count with local state for immediate updates
+const wishlistCount = ref(wishlist.value.length);
+
+// Listen for wishlist updates
+onMounted(() => {
+  on('wishlist:updated', (newWishlist) => {
+    console.log('NavBar received wishlist update:', newWishlist);
+    wishlistCount.value = newWishlist.length;
+  });
 });
 
 const toggleCart = () => {

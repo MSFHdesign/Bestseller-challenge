@@ -1,9 +1,9 @@
 <template>
     <div class="group relative bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-[500px]">
         <!-- Wishlist Button -->
-        <button @click.prevent="toggleWishlist" 
+        <button @click.prevent="handleToggleWishlist" 
             class="absolute top-4 right-4 z-10 bg-white/80 dark:bg-gray-800/80 p-2 rounded-full shadow-md hover:scale-110 transition-transform">
-            <span v-if="isInWishlist" class="text-red-500">❤️</span>
+            <span v-if="isProductInWishlist" class="text-red-500">❤️</span>
             <span v-else class="text-gray-400 hover:text-red-500">🤍</span>
         </button>
 
@@ -120,6 +120,23 @@ const handleAddToCart = () => {
             label: 'Gå til kurv',
             onClick: () => navigateTo('/cart')
         });
+    }
+};
+
+const handleToggleWishlist = () => {
+    // First check current state
+    const wasInWishlist = isProductInWishlist.value;
+    
+    // Then toggle the state
+    toggleWishlist(props.product.id);
+    
+    // Show appropriate message based on the previous state
+    if (wasInWishlist) {
+        // If it was in wishlist before toggling, it's now removed
+        toast.addToast('Fjernet fra favoritter 🤍', 'info', 3000);
+    } else {
+        // If it wasn't in wishlist before toggling, it's now added
+        toast.addToast('Tilføjet til favoritter ❤️', 'success', 3000);
     }
 };
 </script>
