@@ -28,6 +28,11 @@
             Siden du leder efter findes ikke eller er flyttet.
           </p>
           
+         
+          <p class="text-lg text-gray-500 max-w-2xl mx-auto mt-2">
+            Dette kan skyldes et forældet link eller en tastefejl i URL'en.
+          </p>
+          
           <!-- Bestseller-specific message with enhanced styling -->
           <div class="quote-card bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border border-gray-100 shadow-md transform hover:scale-[1.02] transition-all">
             <div class="quote-marks">"</div>
@@ -80,14 +85,17 @@
                 class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black transition-all"
                 v-model="searchQuery"
                 @keyup.enter="handleSearch"
+                aria-label="Søg efter produkter"
               />
               <button 
                 @click="handleSearch"
                 class="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-black text-white rounded-md hover:bg-gray-800 transition-all"
+                aria-label="Søg"
               >
                 Søg
               </button>
             </div>
+            <p class="text-xs text-gray-400 mt-1">Prøv f.eks. "jakke", "kjole" eller "jeans"</p>
           </div>
         </div>
       </div>
@@ -96,10 +104,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import NavBar from '~/components/navigation/NavBar.vue';
 
 const searchQuery = ref('');
+let mouseMoveListener = null;
 
 const goBack = () => {
   window.history.length > 1 ? window.history.back() : navigateTo('/');
@@ -113,7 +122,7 @@ const handleSearch = () => {
 
 onMounted(() => {
   // Add mouse follow effect for fashion elements
-  document.addEventListener('mousemove', (e) => {
+  mouseMoveListener = (e) => {
     const mouseX = e.clientX / window.innerWidth;
     const mouseY = e.clientY / window.innerHeight;
     
@@ -122,7 +131,16 @@ onMounted(() => {
       const offsetY = (mouseY - 0.5) * 40;
       element.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
     });
-  });
+  };
+  
+  document.addEventListener('mousemove', mouseMoveListener);
+});
+
+// Ryd op efter event listeners når komponenten fjernes
+onUnmounted(() => {
+  if (mouseMoveListener) {
+    document.removeEventListener('mousemove', mouseMoveListener);
+  }
 });
 </script>
 
@@ -223,16 +241,16 @@ onMounted(() => {
     transform: translate(0);
   }
   20% {
-    transform: translate(-3px, 3px);
+    transform: translate(-2px, 2px);
   }
   40% {
-    transform: translate(-3px, -3px);
+    transform: translate(-2px, -2px);
   }
   60% {
-    transform: translate(3px, 3px);
+    transform: translate(2px, 2px);
   }
   80% {
-    transform: translate(3px, -3px);
+    transform: translate(2px, -2px);
   }
   100% {
     transform: translate(0);
@@ -316,5 +334,16 @@ onMounted(() => {
   .error-animation {
     animation: none !important;
   }
+}
+
+/* Forbedret tilgængelighed for fokus-tilstande */
+input:focus, button:focus {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+/* Tilføj en mere synlig hover-effekt på knapper for bedre feedback */
+.nav-button:hover, .back-button:hover {
+  transform: translateY(-2px);
 }
 </style> 
