@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <NavBar />
     
     <ProductLoader v-if="isLoading" />
     <ProductError v-else-if="error" :error="error" />

@@ -99,7 +99,7 @@
                     </span>
                   </div>
                   <button 
-                    @click="removeItem(item)"
+                    @click="removeItem(item, index)"
                     class="text-red-500 hover:text-red-600 font-medium text-sm flex items-center gap-1 px-3 py-1.5 rounded-md hover:bg-red-50 transition-colors"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -151,7 +151,7 @@ import { useCart } from '~/composables/useCart';
 import { useProducts } from '~/composables/useProducts';
 import { useToast } from '~/composables/useToast';
 
-const { cart, removeItem } = useCart();
+const { cart, removeItem: originalRemoveItem } = useCart();
 const { products } = useProducts();
 const toast = useToast();
 
@@ -255,6 +255,17 @@ const handleCheckout = () => {
     return;
   }
   navigateTo('/checkout');
+};
+
+// Override the removeItem function to use the index directly
+const removeItem = (item, index) => {
+  // Create a new cart array without the item at the specified index
+  const updatedCart = [...cart.value];
+  updatedCart.splice(index, 1);
+  cart.value = updatedCart;
+  
+  // Show toast notification
+  toast.addToast('Vare fjernet fra kurven', 'success');
 };
 
 onMounted(() => {
