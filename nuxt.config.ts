@@ -22,5 +22,10 @@ export default defineNuxtConfig({
   },
   app: {
     layoutTransition: { name: 'layout', mode: 'out-in' }
+  },
+  runtimeConfig: {
+    public: {
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'https://bestseller-challenge-6dd9.vercel.app'
+    }
   }
 });
