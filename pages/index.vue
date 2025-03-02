@@ -74,7 +74,6 @@
 import { computed, onMounted, watch, ref, onBeforeMount, nextTick } from 'vue';
 import { useProducts } from '~/composables/useProducts';
 import ProductPromo from '~/components/ProductPromo.vue';
-import ProductCard from '~/components/ProductCard.vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
