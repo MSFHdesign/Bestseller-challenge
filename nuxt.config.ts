@@ -13,6 +13,7 @@ export default defineNuxtConfig({
   ssr: true,
   routeRules: {
     '/product/**': { prerender: true }, // Force Nuxt to treat `/product/[id]` as a dynamic route
+    '/api/**': { cors: true }
   },
   components: {
     dirs: [
