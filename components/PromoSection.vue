@@ -1,3 +1,13 @@
+
+/**
+ * PromoSection Component
+ * 
+ * Displays promotional content in a responsive grid layout with optional features.
+ * Used on homepage and category pages to highlight special offers or collections.
+ * 
+ * @component
+ */
+
 <template>
   <section class="relative w-full">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 rounded-xl overflow-hidden">

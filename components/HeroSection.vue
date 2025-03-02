@@ -67,7 +67,11 @@ import data from '@/server/data/data.json';
 import { useProducts } from '~/composables/useProducts';
 import { computed } from 'vue';
 
-// Helper function to get a random product image from a category
+/**
+ * Helper function to get a random product image from a category
+ * @param {string} categoryId - The category ID to find products from
+ * @returns {string} - URL of a random product image or empty string if none found
+ */
 const getRandomImageFromCategory = (categoryId) => {
   const categoryProducts = data.products.filter(p => p.categories?.includes(categoryId));
   if (categoryProducts.length > 0) {
@@ -79,10 +83,21 @@ const getRandomImageFromCategory = (categoryId) => {
 
 const { promotionalSpots } = useProducts();
 
+/**
+ * Main promotional spot for the 2x2 grid layout
+ * Finds a promotional spot with type '2x2' from the available promotional spots
+ */
 const mainPromo = computed(() => {
   return promotionalSpots.value?.find(p => p.type === '2x2') || null;
 });
 
+/**
+ * Featured categories displayed in the category grid
+ * Each category includes:
+ * - id: Unique identifier for the category
+ * - name: Display name in Danish
+ * - image: Random product image from the category
+ */
 const featuredCategories = [
   {
     id: 'women_clothes',

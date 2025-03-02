@@ -30,6 +30,17 @@ interface Product {
   isVariant?: boolean;
 }
 
+/**
+ * Products API Endpoint
+ * 
+ * Retrieves product data from the data.json file and provides filtering capabilities.
+ * 
+ * @route GET /api/products
+ * @param {string} [category] - Optional category filter
+ * @param {string} [search] - Optional search term to filter products by name
+ * @param {string} [sort] - Optional sorting parameter (price_asc, price_desc, newest)
+ * @returns {Object} JSON object containing filtered products array
+ */
 export default defineEventHandler((event) => {
   if (!data || !data.products || !Array.isArray(data.products)) {
     return { products: [] };

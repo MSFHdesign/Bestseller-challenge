@@ -1,7 +1,10 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { useEventBus } from './useEventBus'
 
-// Create a single shared wishlist instance
+/**
+ * Shared wishlist state that persists across component instances
+ * Contains product IDs of items in the wishlist
+ */
 const wishlist = ref<string[]>([])
 const { emit } = useEventBus()
 
@@ -27,11 +30,43 @@ watch(wishlist, (newWishlist) => {
     emit('wishlist:updated', newWishlist)
 }, { deep: true })
 
+/**
+ * useWishlist composable
+ * 
+ * Provides wishlist functionality for saving favorite products.
+ * Includes persistence to localStorage and integration with the event bus.
+ * 
+ * @returns {Object} Wishlist state and methods for wishlist manipulation
+ * 
+ * @example
+ * const { wishlist, isInWishlist, toggleWishlist, count } = useWishlist()
+ * 
+ * // Check if a product is in the wishlist
+ * const isFavorite = computed(() => isInWishlist(product.id))
+ * 
+ * // Toggle wishlist status
+ * const handleFavoriteClick = () => {
+ *   toggleWishlist(product.id)
+ * }
+ */
 export function useWishlist() {
+    /**
+     * Check if a product is in the wishlist
+     * 
+     * @param {string} productId - The product ID to check
+     * @returns {boolean} True if the product is in the wishlist
+     */
     const isInWishlist = (productId: string) => {
         return wishlist.value.includes(productId)
     }
 
+    /**
+     * Toggle a product's presence in the wishlist
+     * If the product is already in the wishlist, it will be removed
+     * If not, it will be added
+     * 
+     * @param {string} productId - The product ID to toggle
+     */
     const toggleWishlist = (productId: string) => {
         const index = wishlist.value.indexOf(productId)
         console.log('Toggling wishlist for product:', productId, 'Current wishlist:', wishlist.value)
@@ -50,7 +85,11 @@ export function useWishlist() {
         emit('wishlist:updated', wishlist.value)
     }
 
-    // Add a count computed property for easy access
+    /**
+     * Number of items in the wishlist
+     * 
+     * @returns {number} The count of wishlist items
+     */
     const count = computed(() => wishlist.value.length)
 
     return {
