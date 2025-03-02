@@ -12,61 +12,48 @@
           <!-- Header Section -->
           <div class="max-w-2xl">
             <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
-              Discover Your Style
-              <span class="block text-xl sm:text-2xl md:text-3xl mt-2 text-gray-600">Shop the Latest Trends</span>
+              Opdag Din Stil
+              <span class="block text-xl sm:text-2xl md:text-3xl mt-2 text-gray-600">Udforsk De Nyeste Trends</span>
             </h1>
             <p class="text-base sm:text-lg text-gray-600 mt-4 sm:mt-6">
-              Explore our curated collection of fashion essentials. From casual comfort to elegant statements, find pieces that express your unique style.
+              Udforsk vores håndplukkede kollektion af modeessentials. Fra afslappet komfort til elegante statements - find tøj, der udtrykker din unikke stil.
             </p>
           </div>
 
-          <!-- Category Links -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
-            <NuxtLink 
-              v-for="category in featuredCategories" 
-              :key="category.id"
-              :to="`/products?category=${category.id}`"
-              class="group relative overflow-hidden rounded-xl aspect-[4/5]"
-            >
-              <img 
-                :src="category.image" 
-                :alt="category.name"
-                class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 
-                  group-hover:scale-110"
-              />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-              <div class="absolute bottom-0 left-0 p-3 sm:p-4">
-                <h3 class="text-white text-sm sm:text-lg font-semibold mb-1 sm:mb-2">{{ category.name }}</h3>
-                <span class="inline-flex items-center text-xs sm:text-sm text-white/90">
-                  Shop Now <span class="ml-1 sm:ml-2 group-hover:translate-x-1 transition-transform">→</span>
-                </span>
-              </div>
-            </NuxtLink>
-          </div>
+          <!-- Category Grid Component -->
+          <CategoryGrid 
+            :categories="featuredCategories"
+            shopNowText="Shop nu"
+          />
 
           <!-- Promo Section -->
-          <section class="relative w-full">
-            <div v-if="mainPromo?.link" class="w-full">
-              <ProductPromo :promo="mainPromo" />
-            </div>
-            <div v-else class="w-full h-[300px] sm:h-[400px] md:h-[600px] bg-gray-100 animate-pulse rounded-xl"></div>
-          </section>
+          <PromoSection 
+            :promo="mainPromo"
+            :tagline="mainPromo?.tagline"
+            :title="mainPromo?.title || mainPromo?._alias"
+            :description="mainPromo?.description"
+            :ctaText="mainPromo?.ctaText"
+            :feature1Title="mainPromo?.feature1Title"
+            :feature1Text="mainPromo?.feature1Text"
+            :feature2Title="mainPromo?.feature2Title"
+            :feature2Text="mainPromo?.feature2Text"
+          />
 
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <NuxtLink 
-              to="/products?category=newin" 
+              to="/products?category=adult" 
               class="bg-black text-white px-6 sm:px-8 py-3 rounded-full font-medium hover:bg-gray-800 
                 transition-all duration-300 hover:scale-105 hover:shadow-lg text-center"
             >
-              Shop New Arrivals
+              Se Nyheder
             </NuxtLink>
             <NuxtLink 
-              to="/products?category=sales" 
+              to="/products?category=adult" 
               class="bg-red-500 text-white px-6 sm:px-8 py-3 rounded-full font-medium hover:bg-red-600 
                 transition-all duration-300 hover:scale-105 hover:shadow-lg text-center"
             >
-              View Sales
+              Se Tilbud
             </NuxtLink>
           </div>
         </div>
@@ -78,6 +65,7 @@
 <script setup>
 import data from '@/server/data/data.json';
 import { useProducts } from '~/composables/useProducts';
+import { computed } from 'vue';
 
 // Helper function to get a random product image from a category
 const getRandomImageFromCategory = (categoryId) => {
@@ -98,12 +86,12 @@ const mainPromo = computed(() => {
 const featuredCategories = [
   {
     id: 'women_clothes',
-    name: 'Kvinder Tøj',
+    name: 'Kvinder',
     image: getRandomImageFromCategory('women_clothes')
   },
   {
     id: 'men_clothes',
-    name: 'Mænd Tøj',
+    name: 'Mænd',
     image: getRandomImageFromCategory('men_clothes')
   },
   {

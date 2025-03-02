@@ -21,45 +21,31 @@
       <!-- Main Content -->
       <div class="container mx-auto px-4 sm:px-6 py-8 sm:py-16 space-y-12 sm:space-y-24">
         <!-- Women's Section -->
-        <section class="space-y-4 sm:space-y-8">
-          <div class="flex justify-between items-center">
-            <h2 class="text-2xl sm:text-3xl font-bold">Kvinder</h2>
-            <NuxtLink 
-              to="/products?category=women_clothes" 
-              class="text-xs sm:text-sm font-medium hover:underline"
-            >
-              Se alle →
-            </NuxtLink>
-          </div>
-          
-          <ProductCarousel 
-            :products="womenProducts" 
-            category="women_clothes"
-          />
-        </section>
+        <ProductSection
+          title="Kvinder"
+          :products="womenProducts"
+          category="women_clothes"
+        />
 
         <!-- Main Promo (2x2) -->
-        <section v-if="mainPromo" class="w-full">
-          <ProductPromo :promo="mainPromo" />
-        </section>
+        <PromoSection 
+          :promo="mainPromo"
+          :tagline="mainPromo?.tagline"
+          :title="mainPromo?.title || mainPromo?._alias"
+          :description="mainPromo?.description"
+          :ctaText="mainPromo?.ctaText"
+          :feature1Title="mainPromo?.feature1Title"
+          :feature1Text="mainPromo?.feature1Text"
+          :feature2Title="mainPromo?.feature2Title"
+          :feature2Text="mainPromo?.feature2Text"
+        />
 
         <!-- Men's Section -->
-        <section class="space-y-4 sm:space-y-8">
-          <div class="flex justify-between items-center">
-            <h2 class="text-2xl sm:text-3xl font-bold">Mænd</h2>
-            <NuxtLink 
-              to="/products?category=men_clothes" 
-              class="text-xs sm:text-sm font-medium hover:underline"
-            >
-              Se alle →
-            </NuxtLink>
-          </div>
-          
-          <ProductCarousel 
-            :products="menProducts" 
-            category="men_clothes"
-          />
-        </section>
+        <ProductSection
+          title="Mænd"
+          :products="menProducts"
+          category="men_clothes"
+        />
       </div>
     </div>
 
@@ -75,6 +61,7 @@ import { computed, onMounted, watch, ref, onBeforeMount, nextTick } from 'vue';
 import { useProducts } from '~/composables/useProducts';
 import ProductPromo from '~/components/ProductPromo.vue';
 import { useRouter } from 'vue-router';
+import ProductSection from '~/components/ProductSection.vue';
 
 const router = useRouter();
 const { products, promotionalSpots, loading: composableLoading, refresh, hasInitialized } = useProducts();
