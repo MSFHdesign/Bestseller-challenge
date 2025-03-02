@@ -80,7 +80,8 @@ const props = defineProps({
   subtotal: { type: Number, required: true },
   shipping: { type: Number, required: true },
   discount: { type: Number, required: true },
-  total: { type: Number, required: true }
+  total: { type: Number, required: true },
+  applyCoupon: Function
 });
 
 const couponCode = ref('');

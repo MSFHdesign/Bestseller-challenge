@@ -93,7 +93,7 @@ const ProductHeader = defineAsyncComponent(() => import('@/components/product/Pr
 const ProductSizes = defineAsyncComponent(() => import('@/components/product/ProductSizes.vue'));
 const ProductActions = defineAsyncComponent(() => import('@/components/product/ProductActions.vue'));
 const ProductDetails = defineAsyncComponent(() => import('@/components/product/ProductDetails.vue'));
-const ProductCategories = defineAsyncComponent(() => import('@/components/product/ProductCategories.vue'));
+const ProductCategories = defineAsyncComponent(() => import('~/components/product/ProductCategories.vue'));
 const StockNotification = defineAsyncComponent(() => import('@/components/product/StockNotification.vue'));
 const ProductLoader = defineAsyncComponent(() => import('@/components/product/ProductLoader.vue'));
 const ProductError = defineAsyncComponent(() => import('@/components/product/ProductError.vue'));

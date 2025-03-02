@@ -62,17 +62,21 @@
 
             <!-- Variant & Size -->
             <div class="mt-2 text-sm text-gray-500">
-              <p v-if="item.selectedVariant" class="flex items-center gap-1">
-                <span>Farve:</span> 
-                <span class="inline-block w-3 h-3 rounded-full" :style="{ backgroundColor: item.selectedVariant.color }"></span>
-                <span>{{ item.selectedVariant.color }}</span>
-              </p>
-              <p v-if="item.selectedSize">
-                Størrelse: <span class="font-medium">{{ item.selectedSize }}</span>
-              </p>
-              <p v-else-if="!item.size || item.size.length === 0">
-                <span class="font-medium">One Size</span>
-              </p>
+              <div style="min-height: 24px;">
+                <p v-if="item.selectedVariant" class="flex items-center gap-1">
+                  <span>Farve:</span> 
+                  <span class="inline-block w-3 h-3 rounded-full" :style="{ backgroundColor: item.selectedVariant.color }"></span>
+                  <span>{{ item.selectedVariant.color }}</span>
+                </p>
+              </div>
+              <div style="min-height: 24px;">
+                <p v-if="item.selectedSize">
+                  Størrelse: <span class="font-medium">{{ item.selectedSize }}</span>
+                </p>
+                <p v-else-if="!item.size || item.size.length === 0">
+                  <span class="font-medium">One Size</span>
+                </p>
+              </div>
             </div>
 
             <!-- Quantity Controls -->
