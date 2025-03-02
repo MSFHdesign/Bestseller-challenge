@@ -74,7 +74,6 @@ function getColorHex(colorName) {
     'White': '#FFFFFF',
     'Red': '#FF0000',
     'Green': '#008000',
-    'Blue': '#0000FF',
     'Yellow': '#FFFF00',
     
     // Special colors from your data
