@@ -1,75 +1,76 @@
-# Nuxt Minimal Starter
+# Bestseller E-commerce - Nuxt.js Challenge
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+## Description
 
-## Setup
+This project is a solution for the Bestseller frontend developer interview challenge. It's built with **Nuxt.js** and follows best practices in frontend development, showcasing a modern e-commerce experience with a focus on user experience and performance.
 
-Make sure to install dependencies:
+## Project Structure
 
-```bash
-# npm
-npm install
+- **Nuxt.js** with Vue 3 and Composition API
+- **TailwindCSS** for responsive styling and design
+- **Fetch API** for data fetching
+- **Custom animations** for enhanced user experience
 
-# pnpm
-pnpm install
+## Features
 
-# yarn
-yarn install
+- Responsive product catalog
+- Shopping cart functionality
+- User authentication
+- Product search and filtering
+- Custom 404 error page
+- Animated UI elements
 
-# bun
-bun install
-```
+## Setup and Running
 
-## Development Server
+To run the project locally:
 
-Start the development server on `http://localhost:3000`:
+1. Clone the repository:
 
-```bash
-# npm
-npm run dev
+   ```bash
+   git clone https://github.com/MSFHdesign/Bestseller-challenge.git
+   cd Bestseller-challenge
+   ```
 
-# pnpm
-pnpm dev
+2. Install dependencies:
 
-# yarn
-yarn dev
+   ```bash
+   npm install
+   ```
 
-# bun
-bun run dev
-```
+3. Start the development server:
 
-## Production
+   ```bash
+   npm run dev
+   ```
 
-Build the application for production:
+4. Open your browser and navigate to `http://localhost:3000` to view the application.
 
-```bash
-# npm
-npm run build
+## Project Structure
 
-# pnpm
-pnpm build
+The project is organized into the following directories:
 
-# yarn
-yarn build
+- `components/`: Reusable Vue components
+- `components/navigation/`: Navigation components
+- `components/product/`: Product components
+- `composables/`: Composables for reusable logic
+- `layouts/`: Layout templates for different pages
+- `pages/`: Page components
+- `public/`: Static assets
+- `server/`: Server-side code
+- `server/api/`: API routes
 
-# bun
-bun run build
-```
+## Technologies Used
 
-Locally preview production build:
+- **Nuxt.js 3**
+- **Vue 3**
+- **TailwindCSS**
 
-```bash
-# npm
-npm run preview
+## Live Demo:
 
-# pnpm
-pnpm preview
+https://bestseller-challenge-6dd9.vercel.app/
 
-# yarn
-yarn preview
+## Notes
 
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+- This project was completed within a limited timeframe to simulate a real-world coding challenge.
+- This project was a great opportunity to quickly learn and apply Vue and Nuxt, enhancing my ability to adapt to new technologies.
+- I also had limited experience with e-commerce development, which made this an exciting challenge to explore best practices.
