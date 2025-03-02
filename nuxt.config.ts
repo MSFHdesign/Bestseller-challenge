@@ -1,6 +1,8 @@
+import { defineNuxtConfig } from 'nuxt/config'
+
 export default defineNuxtConfig({
   devtools: { enabled: false },
-  css: ["~/assets/css/tailwind.css"],
+  css: ["~/assets/CSS/tailwind.css"],
   modules: ["@nuxt/content", "@nuxt/image"],
   postcss: {
     plugins: {
@@ -10,7 +12,7 @@ export default defineNuxtConfig({
   },
   ssr: true,
   routeRules: {
-    '/product/**': { ssr: true }, // 🔥 Force Nuxt to treat `/product/[id]` as a dynamic route
+    '/product/**': { prerender: true }, // Force Nuxt to treat `/product/[id]` as a dynamic route
   },
   components: {
     dirs: [
