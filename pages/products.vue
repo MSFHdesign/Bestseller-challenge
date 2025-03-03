@@ -42,7 +42,7 @@
                 />
 
                 <!-- Product Grid with Promotions -->
-                <div v-if="mixedItems.length > 0" 
+                <div v-if="productCount > 0" 
                     class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                 >
                     <template v-for="item in mixedItems" :key="item.id || `promo-${item.position}`">
@@ -65,14 +65,46 @@
                     </template>
                 </div>
                 
-                <div v-else class="text-center py-16">
-                    <p class="text-gray-500 text-lg">Ingen produkter matcher din søgning</p>
-                    <button 
-                        @click="clearFilters" 
-                        class="mt-4 text-blue-600 hover:underline"
-                    >
-                        Nulstil filtre
-                    </button>
+                <!-- Show this when we have 0 products -->
+                <div v-else class="space-y-12">
+                    <!-- First show any promos if they exist -->
+                    <div v-if="promotionalSpots.value && promotionalSpots.value.length > 0" 
+                         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div
+                            v-for="promo in promotionalSpots.value" 
+                            :key="`promo-${promo.position}`"
+                            :class="getPromoContainerClass(promo)"
+                        >
+                            <ProductPromo 
+                                :promo="promo"
+                                class="h-full w-full"
+                            />
+                        </div>
+                    </div>
+                    
+                    <!-- Show message that no products were found -->
+                    <div class="text-center py-8">
+                        <p class="text-gray-500 text-lg">Ingen produkter fundet i denne kategori</p>
+                        <button 
+                            @click="clearFilters" 
+                            class="mt-4 text-blue-600 hover:underline"
+                        >
+                            Se alle produkter
+                        </button>
+                    </div>
+                    
+                    <!-- Show popular products instead -->
+                    <div class="mt-12">
+                        <h2 class="text-2xl font-bold mb-6">Populære produkter</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            <ProductCard 
+                                v-for="product in popularProducts" 
+                                :key="product.id" 
+                                :product="product"
+                                class="h-full w-full"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -137,6 +169,9 @@ const mixedItems = computed(() => {
         ? [...filteredItems.value] 
         : [...categoryFilteredProducts.value];
     
+    // Track if we have any actual products (not promos)
+    const hasRealProducts = items.length > 0;
+    
     // Ensure we have valid promotionalSpots array
     if (Array.isArray(promotionalSpots.value)) {
         // Sort promotions by position to ensure correct order
@@ -164,8 +199,14 @@ const mixedItems = computed(() => {
         });
     }
     
+    // Store whether we have only promos for use in the template
+    onlyPromosShowing.value = items.length > 0 && items.every(item => item.isPromo === true);
+    
     return items;
 });
+
+// Add this ref to track if we're only showing promos
+const onlyPromosShowing = ref(false);
 
 const handleFilteredProducts = (filtered) => {
     filteredItems.value = filtered;
@@ -295,6 +336,65 @@ watch(() => allProducts.value, () => {
         applyUrlFilters();
     }
 }, { deep: true });
+
+// Replace the existing recommendedProducts computed property with this improved version
+const recommendedProducts = computed(() => {
+    // Only show recommendations when we have no actual products (only promos or nothing)
+    const hasActualProducts = mixedItems.value.some(item => !item.isPromo);
+    if (hasActualProducts) return [];
+    if (!allProducts.value?.length) return [];
+    
+    // Get products based on current category if possible
+    let recommendations = [];
+    
+    if (currentCategory.value) {
+        // First try to get other products from the same category
+        // that might not match the current filters
+        recommendations = allProducts.value.filter(product => 
+            product.categories?.includes(currentCategory.value)
+        ).slice(0, 4);
+        
+        // If no products in this category, get products from parent category if possible
+        if (recommendations.length === 0 && currentCategory.value.includes('_')) {
+            const parentCategory = currentCategory.value.split('_')[0];
+            recommendations = allProducts.value.filter(product => 
+                product.categories?.some(cat => cat.startsWith(parentCategory))
+            ).slice(0, 4);
+        }
+    }
+    
+    // If we still don't have recommendations or not enough, add popular products
+    if (recommendations.length < 4) {
+        // Sort by stock as a simple popularity metric and get products
+        // that aren't already in recommendations
+        const popularProducts = [...allProducts.value]
+            .sort((a, b) => {
+                const stockA = typeof a.stock === 'number' ? a.stock : 0;
+                const stockB = typeof b.stock === 'number' ? b.stock : 0;
+                return stockB - stockA;
+            })
+            .filter(product => !recommendations.some(p => p.id === product.id))
+            .slice(0, 4 - recommendations.length);
+            
+        recommendations = [...recommendations, ...popularProducts];
+    }
+    
+    return recommendations;
+});
+
+// Add a computed property for popular products
+const popularProducts = computed(() => {
+    if (!allProducts.value?.length) return [];
+    
+    // Get the top 4 products by stock level
+    return [...allProducts.value]
+        .sort((a, b) => {
+            const stockA = typeof a.stock === 'number' ? a.stock : 0;
+            const stockB = typeof b.stock === 'number' ? b.stock : 0;
+            return stockB - stockA;
+        })
+        .slice(0, 4);
+});
 </script>
 
 <style scoped>
